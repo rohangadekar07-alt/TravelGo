@@ -494,6 +494,21 @@ section {
     .footer-grid {
         grid-template-columns: 1fr;
     }
+
+    .stats {
+        flex-direction: row;
+        justify-content: space-around;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .stat-item h3 {
+        font-size: 1.8rem;
+    }
+
+    .stat-item p {
+        font-size: 0.8rem;
+    }
 }
 
 /* Toast Notification */
