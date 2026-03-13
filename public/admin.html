@@ -198,9 +198,45 @@
         .hidden { display: none !important; }
 
         @media (max-width: 768px) {
-            .sidebar { width: 70px; }
+            .sidebar { 
+                width: 60px; 
+                padding: 10px 5px;
+            }
+            .sidebar-header .logo {
+                font-size: 1.2rem;
+                text-align: center;
+            }
             .sidebar-header .logo span, .nav-item span, .sidebar-footer span { display: none; }
-            .main-content { padding: 20px; }
+            
+            .nav-item {
+                justify-content: center;
+                padding: 15px 0;
+                font-size: 1.2rem;
+            }
+
+            .main-content { 
+                padding: 20px 15px; 
+            }
+
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .inquiry-card {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 15px;
+            }
         }
     </style>
 </head>
