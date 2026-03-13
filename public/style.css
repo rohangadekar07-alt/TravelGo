@@ -323,14 +323,22 @@ section {
 
 .stats {
     display: flex;
-    gap: 40px;
+    justify-content: flex-start;
+    gap: 60px;
     margin-top: 40px;
 }
 
 .stat-item h3 {
-    font-size: 2.5rem;
+    font-size: 3.5rem;
     color: var(--primary-color);
     margin-bottom: 5px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.stat-item p {
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 500;
 }
 
 /* Booking Section */
