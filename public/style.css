@@ -164,7 +164,7 @@ h1, h2, h3, h4, .logo {
 
 /* Sections */
 section {
-    padding: 100px 0;
+    padding: 60px 0;
 }
 
 .section-title {
@@ -183,6 +183,14 @@ section {
     background: var(--primary-color);
     margin: 15px auto 0;
     border-radius: 2px;
+}
+
+.destinations {
+    padding-bottom: 30px;
+}
+
+.booking {
+    padding-top: 30px;
 }
 
 /* Destinations Section */
