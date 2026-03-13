@@ -321,6 +321,15 @@ section {
     background: var(--bg-muted);
 }
 
+.about-lead {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #4b5563;
+    max-width: 800px;
+    margin-bottom: 30px;
+    font-weight: 500;
+}
+
 .stats {
     display: flex;
     justify-content: flex-start;
