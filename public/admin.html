@@ -92,11 +92,19 @@
             padding: 15px 25px;
             display: flex;
             align-items: center;
+            gap: 15px;
             text-decoration: none;
             color: var(--sidebar-text);
             transition: 0.3s;
             font-weight: 500;
             cursor: pointer;
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            min-width: 24px;
+            display: flex;
+            justify-content: center;
         }
 
         .nav-item:hover, .nav-item.active {
@@ -120,6 +128,10 @@
             font-weight: 600;
             cursor: pointer;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-logout:hover {
@@ -199,19 +211,25 @@
 
         @media (max-width: 768px) {
             .sidebar { 
-                width: 60px; 
-                padding: 10px 5px;
+                width: 70px; 
+                padding: 10px 0;
+            }
+            .sidebar-header {
+                padding: 20px 5px;
             }
             .sidebar-header .logo {
-                font-size: 1.2rem;
-                text-align: center;
+                font-size: 1rem;
             }
-            .sidebar-header .logo span, .nav-item span, .sidebar-footer span { display: none; }
+            .sidebar-header .logo span, .nav-text { display: none; }
             
             .nav-item {
-                justify-content: center;
                 padding: 15px 0;
-                font-size: 1.2rem;
+                justify-content: center;
+                gap: 0;
+            }
+            
+            .nav-icon {
+                font-size: 1.4rem;
             }
 
             .main-content { 
@@ -222,20 +240,26 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .content-header h2 {
+                font-size: 1.4rem;
             }
 
             .stats-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
 
             .stat-card {
                 padding: 15px;
             }
             
-            .inquiry-card {
-                grid-template-columns: 1fr;
-                gap: 10px;
+            /* Chart responsive */
+            .chart-container {
                 padding: 15px;
+                margin-bottom: 20px;
             }
         }
     </style>
@@ -269,20 +293,27 @@
             </div>
             <nav class="sidebar-nav">
                 <div class="nav-item active" onclick="switchView('all', this)">
-                    <span>🏠 Dashboard</span>
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Dashboard</span>
                 </div>
                 <div class="nav-item" onclick="switchView('bookings', this)">
-                    <span>💎 Bookings</span>
+                    <span class="nav-icon">💎</span>
+                    <span class="nav-text">Bookings</span>
                 </div>
                 <div class="nav-item" onclick="switchView('inquiries', this)">
-                    <span>📩 Inquiries</span>
+                    <span class="nav-icon">📩</span>
+                    <span class="nav-text">Inquiries</span>
                 </div>
                 <a href="/" class="nav-item" style="margin-top: auto; text-decoration: none; color: inherit;">
-                    <span>🌍 Back to Site</span>
+                    <span class="nav-icon">🌍</span>
+                    <span class="nav-text">Back to Site</span>
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <button id="logoutBtn" class="btn-logout">Logout</button>
+                <button id="logoutBtn" class="btn-logout">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-text">Logout</span>
+                </button>
             </div>
         </aside>
 
