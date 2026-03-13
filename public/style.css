@@ -500,20 +500,36 @@ section {
 .toast {
     position: fixed;
     top: 30px;
-    right: -400px;
+    right: -450px; /* Initially hidden */
     background: white;
-    padding: 20px 30px;
+    padding: 15px 25px;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     display: flex;
     align-items: center;
     gap: 15px;
     z-index: 9999;
-    transition: right 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+    max-width: 90%;
 }
 
 .toast.show {
     right: 30px;
+}
+
+@media (max-width: 768px) {
+    .toast {
+        right: 50%;
+        left: 50%;
+        transform: translate(-50%, -200px); /* Initially hidden above screen */
+        top: 20px;
+        width: 90%;
+        margin: 0 auto;
+        transition: transform 0.4s ease-out;
+    }
+    .toast.show {
+        transform: translate(-50%, 0); /* Slides down into view */
+    }
 }
 
 .toast.success {
