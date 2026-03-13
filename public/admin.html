@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelGO | Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3a86ff;
+            --secondary: #8338ec;
+            --dark: #1e1e2f;
+            --sidebar-bg: #111827;
+            --sidebar-text: #9ca3af;
+            --sidebar-hover: #1f2937;
+            --bg-body: #f3f4f6;
+        }
+        
+        body {
+            background: var(--bg-body);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Login Layout */
+        .login-wrapper {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #3a86ff 0%, #8338ec 100%);
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card h2 {
+            font-family: 'Outfit';
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Dashboard Layout */
+        .admin-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sidebar-header .logo {
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .sidebar-header .logo span {
+            color: var(--primary);
+        }
+
+        .sidebar-nav {
+            flex-grow: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--sidebar-text);
+            transition: 0.3s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--sidebar-hover);
+            color: white;
+            border-left: 4px solid var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #dc2626;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .content-header h2 {
+            font-family: 'Outfit';
+            margin: 0;
+        }
+
+        .inquiry-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .inquiry-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            border: 1px solid #e5e7eb;
+            transition: 0.3s;
+        }
+
+        .inquiry-card:hover {
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6b7280;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .field-value {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .badge-spot {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; }
+            .sidebar-header .logo span, .nav-item span, .sidebar-footer span { display: none; }
+            .main-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 1. Login Screen -->
+    <div id="loginSection" class="login-wrapper">
+        <div class="login-card">
+            <h2>TravelGO Admin</h2>
+            <form id="loginForm">
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="admin" required>
+                </div>
+                <div class="input-group" style="margin-bottom: 30px;">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Login to Dashboard</button>
+                <p id="errorMsg" style="color: #ef4444; text-align: center; margin-top: 15px; font-weight: 500;"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Admin Dashboard Layout -->
+    <div id="dashboardSection" class="admin-layout hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">Travel<span>GO</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active" onclick="switchView('all', this)">
+                    <span>🏠 Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="switchView('bookings', this)">
+                    <span>💎 Bookings</span>
+                </div>
+                <div class="nav-item" onclick="switchView('inquiries', this)">
+                    <span>📩 Inquiries</span>
+                </div>
+                <a href="/" class="nav-item" style="margin-top: auto; text-decoration: none; color: inherit;">
+                    <span>🌍 Back to Site</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="content-header">
+                <h2>Admin Dashboard</h2>
+                <div style="font-size: 0.9rem; color: #6b7280;" id="lastUpdate">Loading...</div>
+            </header>
+
+            <!-- Stats Overview -->
+            <div id="statsSection">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #ecfdf5; color: #10b981;">💰</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Revenue</span>
+                            <h3 id="totalRevenue">Rs 0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #eff6ff; color: #3b82f6;">💎</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Bookings</span>
+                            <h3 id="totalBookingsCount">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fdf2f8; color: #ec4899;">📩</div>
+                        <div class="stat-info">
+                            <span class="stat-label">New Inquiries</span>
+                            <h3 id="totalInquiryCount">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Growth Chart -->
+                <div class="chart-container">
+                    <div class="section-header">
+                        <h3>📈 Monthly Booking Growth</h3>
+                    </div>
+                    <canvas id="growthChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <div id="confirmedSection" style="display: none;">
+                <div class="section-header">
+                    <h3>💎 Confirmed Bookings</h3>
+                </div>
+                <div id="bookingList" class="inquiry-grid" style="margin-bottom: 50px;">
+                    <!-- Bookings will be loaded here -->
+                </div>
+            </div>
+
+            <div id="inquirySection" style="display: none;">
+                <div class="section-header">
+                    <h3>📩 General Inquiries</h3>
+                </div>
+                <div id="inquiryList" class="inquiry-grid">
+                    <!-- Inquiries will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .section-header {
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        .section-header h3 {
+            color: #374151;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .stat-info .stat-label {
+            color: #6b7280;
+            font-size: 0.8rem;
+            display: block;
+        }
+        .stat-info h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: #111827;
+        }
+
+        /* Chart */
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+    </style>
+
+    <script>
+        const loginSection = document.getElementById('loginSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const loginForm = document.getElementById('loginForm');
+        const inquiryList = document.getElementById('inquiryList');
+        const errorMsg = document.getElementById('errorMsg');
+        const inquiryCount = document.getElementById('inquiryCount');
+
+        // Login Handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('admin_token', 'active');
+                    showDashboard();
+                } else {
+                    errorMsg.textContent = 'Invalid username or password.';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Server connection error.';
+            }
+        });
+
+        const bookingList = document.getElementById('bookingList');
+        // inquiryList already declared above
+        const totalRevenueEl = document.getElementById('totalRevenue');
+        const totalBookingsEl = document.getElementById('totalBookingsCount');
+        const totalInquiryEl = document.getElementById('totalInquiryCount');
+        const lastUpdateEl = document.getElementById('lastUpdate');
+        let myChart = null;
+
+        // Fetch Data
+        async function loadDashboardData() {
+            try {
+                const res = await fetch('/api/admin/data');
+                const { inquiries, bookings } = await res.json();
+                
+                lastUpdateEl.textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+                totalBookingsEl.textContent = bookings.length;
+                totalInquiryEl.textContent = inquiries.length;
+
+                // Calculate Revenue
+                let totalRev = 0;
+                bookings.forEach(b => {
+                    const priceNum = parseInt(b.price.replace(/[^0-9]/g, ''));
+                    if (!isNaN(priceNum)) totalRev += priceNum;
+                });
+                totalRevenueEl.textContent = `Rs ${totalRev.toLocaleString()}`;
+
+                // Render Chart
+                updateChart(bookings);
+
+                // Render Bookings (Previous logic)
+                if (bookings.length === 0) {
+                    bookingList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #9ca3af;">No bookings yet.</div>';
+                } else {
+                    bookingList.innerHTML = bookings.map(bnq => `
+                        <div class="inquiry-card" style="border-left: 4px solid #10b981;">
+                            <div class="field">
+                                <span class="field-label">Customer</span>
+                                <span class="field-value">${bnq.fullName}</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Mobile</span>
+                                <span class="field-value">${bnq.mobileNumber}</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Destination</span>
+                                <div class="badge-spot" style="background: #ecfdf5; color: #065f46;">${bnq.travelSpot}</div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Travel Mode</span>
+                                <span class="field-value">${bnq.travelMode}</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Package</span>
+                                <span class="field-value">${bnq.price}</span>
+                                <small style="display:block; font-size:0.7rem;">${bnq.duration}</small>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Status</span>
+                                <span class="field-value" style="color: #10b981;">✅ Confirmed</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Render Inquiries (Previous logic)
+                if (inquiries.length === 0) {
+                    inquiryList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #9ca3af;">No inquiries yet.</div>';
+                } else {
+                    inquiryList.innerHTML = inquiries.map(inq => `
+                        <div class="inquiry-card">
+                            <div class="field">
+                                <span class="field-label">Customer</span>
+                                <span class="field-value">${inq.fullName}</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Email</span>
+                                <span class="field-value" style="font-size:0.8rem;">${inq.email}</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Mobile</span>
+                                <span class="field-value">${inq.mobileNumber}</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Destination</span>
+                                <div class="badge-spot">${inq.travelSpot}</div>
+                            </div>
+                            <div class="field">
+                                <span class="field-label">Date</span>
+                                <span class="field-value">${new Date(inq.travelDate).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function updateChart(bookings) {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            
+            // Group by month
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const bookingCounts = new Array(12).fill(0);
+            
+            bookings.forEach(b => {
+                const date = new Date(b.submittedAt);
+                bookingCounts[date.getMonth()]++;
+            });
+
+            if(myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Monthly Bookings',
+                        data: bookingCounts,
+                        backgroundColor: '#3a86ff',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        function showDashboard() {
+            loginSection.classList.add('hidden');
+            dashboardSection.classList.remove('hidden');
+            loadDashboardData();
+            
+            // Explicitly hide sections for the main dashboard view
+            document.getElementById('confirmedSection').style.display = 'none';
+            document.getElementById('inquirySection').style.display = 'none';
+        }
+
+        // View Switching Logic
+        function switchView(view, element) {
+            // Update Active Class
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            const statsSection = document.getElementById('statsSection');
+            const confirmedSection = document.getElementById('confirmedSection');
+            const inquirySection = document.getElementById('inquirySection');
+            const headerTitle = document.querySelector('.content-header h2');
+
+            if (view === 'all') {
+                statsSection.style.display = 'block';
+                confirmedSection.style.display = 'none';
+                inquirySection.style.display = 'none';
+                headerTitle.textContent = 'Admin Dashboard';
+            } else if (view === 'bookings') {
+                statsSection.style.display = 'none';
+                confirmedSection.style.display = 'block';
+                inquirySection.style.display = 'none';
+                headerTitle.textContent = 'Confirmed Bookings';
+            } else if (view === 'inquiries') {
+                statsSection.style.display = 'none';
+                confirmedSection.style.display = 'none';
+                inquirySection.style.display = 'block';
+                headerTitle.textContent = 'General Inquiries';
+            }
+        }
+
+        // Logout Logic
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('admin_token');
+            location.reload();
+        });
+
+        // Persistence check
+        if (localStorage.getItem('admin_token') === 'active') {
+            showDashboard();
+        }
+    </script>
+</body>
+</html>

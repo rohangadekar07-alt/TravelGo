@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelGO | Explore the World</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">Travel<span>GO</span></div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#destinations">Destinations</a></li>
+                <li><a href="#reviews">Reviews</a></li>
+                <li class="admin-tab"><a href="/admin" class="admin-btn">Admin Dashboard</a></li>
+            </ul>
+            <div class="menu-btn">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="home" class="hero">
+        <div class="hero-content">
+            <h1>Travel Beyond Boundaries</h1>
+            <p>Experience the world's most breathtaking destinations with our curated travel packages.</p>
+            <a href="#destinations" class="btn">Explore Now</a>
+        </div>
+    </header>
+
+    <!-- Professional Features/Services -->
+    <section class="features">
+        <div class="container feature-grid">
+            <div class="feature-card">
+                <div class="f-icon">🛡️</div>
+                <h4>Safe & Secure</h4>
+                <p>Top-rated safety protocols for every journey.</p>
+            </div>
+            <div class="feature-card">
+                <div class="f-icon">💰</div>
+                <h4>Best Price</h4>
+                <p>Guaranteed competitive rates for all packages.</p>
+            </div>
+            <div class="feature-card">
+                <div class="f-icon">🎧</div>
+                <h4>24/7 Support</h4>
+                <p>We are here for you anytime, anywhere.</p>
+            </div>
+            <div class="feature-card">
+                <div class="f-icon">✨</div>
+                <h4>VIP Tours</h4>
+                <p>Exclusive access to private events & spots.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-content">
+                    <h2 class="section-title">Why TravelGO?</h2>
+                    <p>We are dedicated to providing the most authentic and memorable travel experiences. From the bustling streets of Tokyo to the serene beaches of Bali, we curate every detail to ensure your journey is perfect.</p>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <h3>10k+</h3>
+                            <p>Happy Travelers</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>500+</h3>
+                            <p>Destinations</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>15+</h3>
+                            <p>Years of Experience</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Destinations Section -->
+    <section id="destinations" class="destinations">
+        <div class="container">
+            <h2 class="section-title">Popular Destinations</h2>
+
+            <!-- Category Filters -->
+            <div class="filter-container">
+                <button class="filter-btn active" onclick="filterDestinations('all')">All Spots</button>
+                <button class="filter-btn" onclick="filterDestinations('india')">India</button>
+                <button class="filter-btn" onclick="filterDestinations('international')">International</button>
+            </div>
+
+            <div class="destination-grid">
+                <!-- International - Bali -->
+                <div class="card" data-category="international">
+                    <div class="card-badge">Hot Deal</div>
+                    <div class="card-img">
+                        <img src="images/bali.png" alt="Bali">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.9)</span>
+                            <span>5D/4N</span>
+                        </div>
+                        <h3>Bali, Indonesia</h3>
+                        <p>Tropical sun and serene beaches.</p>
+                        <p class="price">Rs 45,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Bali')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- India - Manali -->
+                <div class="card" data-category="india">
+                    <div class="card-badge">Best Seller</div>
+                    <div class="card-img">
+                        <img src="images/manali.png" alt="Manali">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.8)</span>
+                            <span>4D/3N</span>
+                        </div>
+                        <h3>Manali, HP</h3>
+                        <p>Snow-capped peaks and river valleys.</p>
+                        <p class="price">Rs 12,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Manali')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- International - Switzerland -->
+                <div class="card" data-category="international">
+                    <div class="card-img">
+                        <img src="images/switzerland.png" alt="Switzerland">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (5.0)</span>
+                            <span>7D/6N</span>
+                        </div>
+                        <h3>Swiss Alps</h3>
+                        <p>Snowy peaks and luxury train journeys.</p>
+                        <p class="price">Rs 1,65,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Switzerland')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- India - Goa -->
+                <div class="card" data-category="india">
+                    <div class="card-img">
+                        <img src="images/goa.png" alt="Goa">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.7)</span>
+                            <span>3D/2N</span>
+                        </div>
+                        <h3>Goa, India</h3>
+                        <p>Sun, sand, and vibrant nightlife.</p>
+                        <p class="price">Rs 8,500</p>
+                        <button class="btn btn-card" onclick="bookSpot('Goa')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- International - Maldives -->
+                <div class="card" data-category="international">
+                    <div class="card-badge">Most Popular</div>
+                    <div class="card-img">
+                        <img src="images/maldives.png" alt="Maldives">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.8)</span>
+                            <span>4D/3N</span>
+                        </div>
+                        <h3>Maldives</h3>
+                        <p>Crystal clear water and overwater villas.</p>
+                        <p class="price">Rs 75,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Maldives')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- India - Rajasthan -->
+                <div class="card" data-category="india">
+                    <div class="card-img">
+                        <img src="images/rajasthan.png" alt="Rajasthan">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.9)</span>
+                            <span>5D/4N</span>
+                        </div>
+                        <h3>Jaipur, Rajasthan</h3>
+                        <p>Heritage palaces and colorful culture.</p>
+                        <p class="price">Rs 15,500</p>
+                        <button class="btn btn-card" onclick="bookSpot('Rajasthan')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- International - Japan -->
+                <div class="card" data-category="international">
+                    <div class="card-img">
+                        <img src="images/japan.png" alt="Japan">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.9)</span>
+                            <span>6D/5N</span>
+                        </div>
+                        <h3>Kyoto, Japan</h3>
+                        <p>Culture, temples, and cherry blossoms.</p>
+                        <p class="price">Rs 85,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Japan')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- India - Kerala -->
+                <div class="card" data-category="india">
+                    <div class="card-badge">Winter Special</div>
+                    <div class="card-img">
+                        <img src="images/kerala.png" alt="Kerala">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.8)</span>
+                            <span>4D/3N</span>
+                        </div>
+                        <h3>Kerala Backwaters</h3>
+                        <p>Serene houseboats and tropical greenery.</p>
+                        <p class="price">Rs 13,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Kerala')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- India - Kashmir -->
+                <div class="card" data-category="india">
+                    <div class="card-badge">Paradise</div>
+                    <div class="card-img">
+                        <img src="images/kashmir.png" alt="Kashmir">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (5.0)</span>
+                            <span>6D/5N</span>
+                        </div>
+                        <h3>Kashmir, India</h3>
+                        <p>Heaven on Earth with Dal Lake stay.</p>
+                        <p class="price">Rs 22,500</p>
+                        <button class="btn btn-card" onclick="bookSpot('Kashmir')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- India - Ladakh -->
+                <div class="card" data-category="india">
+                    <div class="card-img">
+                        <img src="images/ladakh.png" alt="Ladakh">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.9)</span>
+                            <span>7D/6N</span>
+                        </div>
+                        <h3>Leh Ladakh</h3>
+                        <p>Adventurous bike trips and blue lakes.</p>
+                        <p class="price">Rs 28,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Ladakh')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- India - Andaman -->
+                <div class="card" data-category="india">
+                    <div class="card-img">
+                        <img src="images/andaman.png" alt="Andaman">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.8)</span>
+                            <span>5D/4N</span>
+                        </div>
+                        <h3>Andaman Islands</h3>
+                        <p>Crystal clear beaches and scuba diving.</p>
+                        <p class="price">Rs 35,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Andaman')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- India - Hampi -->
+                <div class="card" data-category="india">
+                    <div class="card-img">
+                        <img src="images/hampi.png" alt="Hampi">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.7)</span>
+                            <span>3D/2N</span>
+                        </div>
+                        <h3>Hampi, Karnataka</h3>
+                        <p>Historic ruins and monolithic stones.</p>
+                        <p class="price">Rs 7,500</p>
+                        <button class="btn btn-card" onclick="bookSpot('Hampi')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- International - Dubai -->
+                <div class="card" data-category="international">
+                    <div class="card-img">
+                        <img src="images/dubai.png" alt="Dubai">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.7)</span>
+                            <span>4D/3N</span>
+                        </div>
+                        <h3>Dubai, UAE</h3>
+                        <p>Luxury shopping and futuristic skylines.</p>
+                        <p class="price">Rs 55,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Dubai')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- International - Paris -->
+                <div class="card" data-category="international">
+                    <div class="card-img">
+                        <img src="images/paris.png" alt="Paris">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.9)</span>
+                            <span>5D/4N</span>
+                        </div>
+                        <h3>Paris, France</h3>
+                        <p>City of lights and classic romance.</p>
+                        <p class="price">Rs 1,10,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('Paris')">Book Now</button>
+                    </div>
+                </div>
+
+                <!-- International - London -->
+                <div class="card" data-category="international">
+                    <div class="card-img">
+                        <img src="images/london.png" alt="London">
+                    </div>
+                    <div class="card-info">
+                        <div class="rating-duration">
+                            <span>⭐⭐⭐⭐⭐ (4.8)</span>
+                            <span>5D/4N</span>
+                        </div>
+                        <h3>London, UK</h3>
+                        <p>Modern heritage and royal architecture.</p>
+                        <p class="price">Rs 90,000</p>
+                        <button class="btn btn-card" onclick="bookSpot('London')">Book Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Inquiry Section -->
+    <section id="book" class="booking">
+        <div class="container">
+            <div class="booking-card">
+                <h2 class="section-title">Book Your Dream Trip</h2>
+                <p>Tell us where you want to go and we'll handle the rest!</p>
+                <form id="inquiryForm">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" placeholder="John Doe" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="mobileNumber">Mobile Number</label>
+                            <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="10-digit number" pattern="[0-9]{10}" title="Please enter a 10-digit mobile number" maxlength="10" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="travelDate">Travel Date</label>
+                            <input type="date" id="travelDate" name="travelDate" required>
+                        </div>
+                        <div class="input-group full-width">
+                            <label for="travelSpot">Choose Destination</label>
+                            <select id="travelSpot" name="travelSpot" required>
+                                <option value="" disabled selected>Select a spot</option>
+                                <option value="Bali">Bali, Indonesia</option>
+                                <option value="Switzerland">Swiss Alps</option>
+                                <option value="Maldives">Maldives</option>
+                                <option value="Japan">Kyoto, Japan</option>
+                                <option value="Dubai">Dubai, UAE</option>
+                                <option value="Paris">Paris, France</option>
+                                <option value="London">London, UK</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Inquiry</button>
+                    <div id="formStatus" class="form-status"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="reviews">
+        <div class="container">
+            <h2 class="section-title">Traveler Reviews</h2>
+            <div class="review-grid">
+                <div class="review-card">
+                    <div class="user-info">
+                        <div class="avatar">S</div>
+                        <div>
+                            <h4>Sarah Johnson</h4>
+                            <p>Bali Trip</p>
+                        </div>
+                    </div>
+                    <p class="review-text">"An absolutely amazing experience! The Bali trip was curated perfectly. Highly recommended!"</p>
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                </div>
+                <div class="review-card">
+                    <div class="user-info">
+                        <div class="avatar">M</div>
+                        <div>
+                            <h4>Michael Chen</h4>
+                            <p>Japan Tour</p>
+                        </div>
+                    </div>
+                    <p class="review-text">"TravelGO made our Japan trip seamless. The guides were professional and the itinerary was great."</p>
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-info">
+                    <div class="logo">Travel<span>GO</span></div>
+                    <p>Your ultimate partner for worldwide travel and exploration.</p>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p>Email: contact@travelgo.com</p>
+                    <p>Phone: +91 9890145825</p>
+                    <p>Address: Maharashtra, India</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 TravelGO. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div class="modal-grid">
+                <div class="modal-visual">
+                    <img id="modalImg" src="" alt="Destination">
+                    <div id="modalPrice" class="modal-price-tag"></div>
+                </div>
+                <div class="modal-form-area">
+                    <h2 id="modalTitle">Complete Your Booking</h2>
+                    <p id="modalDuration" class="modal-duration-text"></p>
+                    
+                    <form id="modalInquiryForm">
+                        <div class="modal-input-grid">
+                            <div class="input-group">
+                                <label>Preferred Date</label>
+                                <input type="date" id="modalDate" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Travel Mode</label>
+                                <div class="travel-mode-toggle">
+                                    <label><input type="radio" name="mode" value="Flight" checked> ✈️ Flight</label>
+                                    <label><input type="radio" name="mode" value="Train"> 🚆 Train</label>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Full Name</label>
+                                <input type="text" id="modalName" placeholder="Your Name" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Mobile No.</label>
+                                <input type="tel" id="modalPhone" placeholder="10-digit number" pattern="[0-9]{10}" title="Please enter a 10-digit mobile number" maxlength="10" required>
+                            </div>
+                        </div>
+                        <div class="modal-highlights">
+                            <ul>
+                                <li>✨ Premium Accomodation</li>
+                                <li>🍱 Daily Breakfast & Dinner</li>
+                                <li>🚐 Guided City Tours</li>
+                            </ul>
+                        </div>
+                        <button type="submit" class="btn btn-confirm">Confirm Booking</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div id="toastIcon" class="toast-icon"></div>
+        <div id="toastText" class="toast-text"></div>
+    </div>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/919890145825?text=Hello%20TravelGO,%20I%20want%20to%20inquire%20about%20a%20travel%20package!" class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script src="script.js"></script>
+</body>
+</html>
