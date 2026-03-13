@@ -211,40 +211,69 @@
 
         @media (max-width: 768px) {
             .sidebar { 
-                width: 70px; 
-                padding: 10px 0;
+                position: fixed;
+                left: -100%;
+                top: 0;
+                bottom: 0;
+                width: 260px;
+                z-index: 2001;
+                transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
-            .sidebar-header {
-                padding: 20px 5px;
+            .sidebar.active {
+                left: 0;
             }
-            .sidebar-header .logo {
-                font-size: 1rem;
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 2000;
+                backdrop-filter: blur(4px);
             }
-            .sidebar-header .logo span, .nav-text { display: none; }
+            .sidebar-overlay.active {
+                display: block;
+            }
+            .sidebar-header .logo span, .nav-text { display: inline; }
             
             .nav-item {
-                padding: 15px 0;
-                justify-content: center;
-                gap: 0;
+                padding: 15px 25px;
+                justify-content: flex-start;
+                gap: 15px;
             }
             
-            .nav-icon {
-                font-size: 1.4rem;
-            }
-
             .main-content { 
-                padding: 20px 15px; 
+                padding: 80px 15px 20px; 
             }
 
             .content-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-                margin-bottom: 20px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 15px;
+                z-index: 1000;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0;
             }
-            
-            .content-header h2 {
-                font-size: 1.4rem;
+
+            .menu-btn-admin {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                cursor: pointer;
+            }
+            .menu-btn-admin .bar {
+                width: 25px;
+                height: 3px;
+                background: #1f2937;
+                border-radius: 3px;
             }
 
             .stats-grid {
@@ -256,10 +285,14 @@
                 padding: 15px;
             }
             
-            /* Chart responsive */
             .chart-container {
-                padding: 15px;
-                margin-bottom: 20px;
+                padding: 10px;
+                margin-top: 10px;
+            }
+            
+            canvas {
+                width: 100% !important;
+                height: auto !important;
             }
         }
     </style>
@@ -286,8 +319,9 @@
 
     <!-- 2. Admin Dashboard Layout -->
     <div id="dashboardSection" class="admin-layout hidden">
+        <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">Travel<span>GO</span></div>
             </div>
@@ -320,8 +354,13 @@
         <!-- Main Content Area -->
         <main class="main-content">
             <header class="content-header">
-                <h2>Admin Dashboard</h2>
-                <div style="font-size: 0.9rem; color: #6b7280;" id="lastUpdate">Loading...</div>
+                <div class="menu-btn-admin" onclick="toggleMobileSidebar()">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+                <h2 id="viewTitle">Admin Dashboard</h2>
+                <div style="font-size: 0.8rem; color: #6b7280; text-align: right;" id="lastUpdate">Loading...</div>
             </header>
 
             <!-- Stats Overview -->
@@ -618,6 +657,12 @@
 
         // View Switching Logic
         function switchView(view, element) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
             // Update Active Class
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             element.classList.add('active');
@@ -654,6 +699,12 @@
         // Persistence check
         if (localStorage.getItem('admin_token') === 'active') {
             showDashboard();
+        }
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
         }
     </script>
 </body>
