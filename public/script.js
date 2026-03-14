@@ -1,11 +1,32 @@
-// Navbar transparency on scroll
+// Navbar transparency and Active link on scroll
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
+    const sections = document.querySelectorAll('section, header');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    
+    // Transparency logic
     if (window.scrollY > 50) {
         navbar.classList.add('scrolled');
     } else {
         navbar.classList.remove('scrolled');
     }
+
+    // Scroll Spy: Highlight active link
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= (sectionTop - 150)) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href').includes(current) && current !== null) {
+            link.classList.add('active');
+        }
+    });
 });
 
 // Mobile Menu Toggle
@@ -161,8 +182,8 @@ function bookSpot(spotName) {
     currentSpot = spotName;
     const pkg = packages[spotName];
     
-    document.getElementById('modalTitle').textContent = `Book Your Trip to ${spotName}`;
-    document.getElementById('modalDuration').textContent = `⏳ ${pkg.duration} | All Inclusive Pack`;
+    document.getElementById('modalTitle').textContent = `Explore ${spotName}`;
+    document.getElementById('modalDuration').textContent = `${pkg.duration} · All Inclusive`;
     document.getElementById('modalPrice').textContent = pkg.price;
     document.getElementById('modalImg').src = pkg.img;
     
@@ -182,13 +203,15 @@ if (modalForm) {
         e.preventDefault();
         
         const submitBtn = modalForm.querySelector('.btn-confirm');
-        submitBtn.textContent = 'Processing...';
+        const originalBtnContent = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Secure Payment...';
         submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.8';
 
         const pkg = packages[currentSpot];
         const selectedMode = document.querySelector('input[name="mode"]:checked').value;
 
-        const formData = {
+        const bookingData = {
             fullName: document.getElementById('modalName').value,
             mobileNumber: document.getElementById('modalPhone').value,
             travelDate: document.getElementById('modalDate').value,
@@ -199,89 +222,102 @@ if (modalForm) {
         };
 
         // Mobile validation
-        if (!/^\d{10}$/.test(formData.mobileNumber)) {
+        if (!/^\d{10}$/.test(bookingData.mobileNumber)) {
             showToast('Please enter a valid 10-digit mobile number.', 'error');
-            submitBtn.textContent = 'Confirm Booking';
+            submitBtn.innerHTML = originalBtnContent;
             submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
             return;
         }
-
-        try {
-            const response = await fetch('/api/bookings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-
-            let result;
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.indexOf("application/json") !== -1) {
-                result = await response.json();
-            }
-
-            if (response.ok) {
-                // Show Dummy Razorpay UI
-                showPaymentGateway(formData);
-                closeModal();
-                modalForm.reset();
-            } else {
-                const errMsg = result ? (result.message || result.error) : `Server Error (${response.status})`;
-                showToast(errMsg, 'error');
-            }
-        } catch (error) {
-            console.error('Full Error:', error);
-            showToast(`Error: ${error.message || 'Connection failed'}`, 'error');
-        }
- finally {
-            submitBtn.textContent = 'Confirm Booking';
-            submitBtn.disabled = false;
-        }
+        // Store booking data temporarily and redirect to QR payment page
+        sessionStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+        
+        setTimeout(() => {
+            window.location.href = '/payment.html';
+        }, 800);
     });
 }
 
-// Dummy Razorpay Simulation
-function showPaymentGateway(bookingData) {
-    const paymentOverlay = document.createElement('div');
-    paymentOverlay.className = 'payment-overlay';
-    paymentOverlay.innerHTML = `
-        <div class="razorpay-mock">
-            <div class="rp-header">
-                <div class="rp-logo">Travel<span>GO</span></div>
-                <div class="rp-amount">${bookingData.price}</div>
-            </div>
-            <div class="rp-content">
-                <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">Secure Payment Gateway</p>
-                <div class="rp-method">
-                    <i class="fas fa-university"></i>
-                    <span>Net Banking</span>
-                </div>
-                <div class="rp-method active">
-                    <i class="fas fa-credit-card"></i>
-                    <span>Cards (Visa, Matercard)</span>
-                </div>
-                <div class="rp-method">
-                    <i class="fab fa-google-pay"></i>
-                    <span>UPI / Google Pay</span>
-                </div>
-                <button class="rp-pay-btn" id="dummyPayBtn">Pay ${bookingData.price}</button>
-            </div>
-            <p style="text-align: center; font-size: 0.7rem; color: #999; margin-top: 15px;">
-                <i class="fas fa-shield-alt"></i> Razorpay Secured | SSL Encrypted
-            </p>
-        </div>
-    `;
-    document.body.appendChild(paymentOverlay);
-
-    document.getElementById('dummyPayBtn').onclick = function() {
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        this.disabled = true;
+// Hero Background & Content Slideshow
+function startHeroSlideshow() {
+    const backgrounds = document.querySelectorAll('.hero-bg');
+    const heroTitle = document.getElementById('heroTitle');
+    const heroDesc = document.getElementById('heroDesc');
+    
+    if (backgrounds.length === 0 || !heroTitle || !heroDesc) return;
+    
+    const content = [
+        {
+            title: "Peak Adventures Await",
+            desc: "Conquer the world's most majestic summits with our expert guides."
+        },
+        {
+            title: "Serenity in Every Wave",
+            desc: "Dive into crystal clear waters and explore hidden island paradises."
+        },
+        {
+            title: "Untamed Golden Sands",
+            desc: "Experience the timeless beauty of vast dunes under endless horizons."
+        },
+        {
+            title: "Tropical Paradise Found",
+            desc: "Unwind in the lush greenery and vibrant culture of exotic escapes."
+        }
+    ];
+    
+    let currentIndex = 0;
+    
+    setInterval(() => {
+        // Fade out text
+        heroTitle.style.opacity = '0';
+        heroDesc.style.opacity = '0';
+        heroTitle.style.transform = 'translateY(-20px)';
+        heroDesc.style.transform = 'translateY(-20px)';
         
         setTimeout(() => {
-            paymentOverlay.remove();
-            showToast(`Payment Successful! Trip to ${bookingData.travelSpot} confirmed.`, 'success');
-        }, 2000);
-    };
+            // Remove active from current BG
+            backgrounds[currentIndex].classList.remove('active');
+            
+            // Increment index
+            currentIndex = (currentIndex + 1) % backgrounds.length;
+            
+            // Add active to next BG
+            backgrounds[currentIndex].classList.add('active');
+            
+            // Change text content
+            heroTitle.textContent = content[currentIndex].title;
+            heroDesc.textContent = content[currentIndex].desc;
+            
+            // Fade in text
+            heroTitle.style.opacity = '1';
+            heroDesc.style.opacity = '1';
+            heroTitle.style.transform = 'translateY(0)';
+            heroDesc.style.transform = 'translateY(0)';
+        }, 1000); // Sync with CSS transition
+        
+    }, 6000); // Change every 6 seconds to account for text transition
 }
+
+// Start slideshow when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startHeroSlideshow);
+} else {
+    startHeroSlideshow();
+}
+
+// QR Payment Simulation - Replaces Razorpay
+
+// Dummy function removed - real Razorpay used instead
+
+// Reset button state when page is shown (fixes back button cache issue)
+window.addEventListener('pageshow', (event) => {
+    const submitBtn = document.querySelector('#modalInquiryForm .btn-confirm');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<span>Confirm & Pay Now</span><i class="fas fa-arrow-right"></i>';
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+    }
+});
 
 // Close modal when clicking outside
 window.onclick = function(event) {

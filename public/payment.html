@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | TravelGO</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3a86ff;
+            --secondary: #ff4757;
+            --dark: #0f172a;
+            --light-bg: #f8fafc;
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            --gradient: linear-gradient(135deg, #3a86ff 0%, #8338ec 100%);
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        /* Simplified Checkout Navbar */
+        .checkout-nav {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checkout-nav .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--dark);
+        }
+
+        .checkout-nav .logo span {
+            color: var(--primary);
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .secure-badge i {
+            color: #10b981;
+        }
+
+        /* Main Content */
+        .checkout-wrapper {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Progress Stepper */
+        .stepper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            gap: 10px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary);
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            background: #10b981;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .step.active .step-label {
+            color: var(--dark);
+        }
+
+        .step-line {
+            width: 50px;
+            height: 2px;
+            background: #e2e8f0;
+            margin: 0 10px;
+            align-self: center;
+        }
+
+        /* Grid Layout */
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 30px;
+        }
+
+        /* Left Side: Payment */
+        .payment-box {
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .payment-header {
+            padding: 30px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .payment-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .payment-header p {
+            margin: 5px 0 0;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .payment-body {
+            padding: 30px;
+        }
+
+        .payment-method-card {
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 20px;
+            background: #f0f7ff;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .method-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .method-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+
+        .method-info i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .qr-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .qr-wrapper {
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .qr-wrapper img {
+            width: 180px;
+            height: 180px;
+            display: block;
+        }
+
+        .countdown-timer {
+            text-align: center;
+            background: #fff;
+            padding: 12px 25px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--secondary);
+            border: 1px solid #ffe4e6;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .info-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .info-card i {
+            color: var(--primary);
+            margin-top: 3px;
+        }
+
+        .info-card p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        /* Right Side: Summary */
+        .summary-box {
+            position: sticky;
+            top: 100px;
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .summary-card h3 {
+            font-family: 'Outfit', sans-serif;
+            margin: 0 0 20px;
+            font-size: 1.25rem;
+        }
+
+        .destination-preview {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .preview-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .preview-text h4 {
+            margin: 0 0 5px;
+            font-size: 1.1rem;
+        }
+
+        .preview-text p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .detail-label {
+            color: #64748b;
+        }
+
+        .detail-value {
+            font-weight: 600;
+        }
+
+        .total-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px dashed #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-label {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .total-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--secondary);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-confirm {
+            width: 100%;
+            margin-top: 30px;
+            padding: 16px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(58, 134, 255, 0.2);
+        }
+
+        .btn-confirm:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none;
+        }
+
+        .btn-confirm:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(58, 134, 255, 0.3);
+        }
+
+        .btn-back {
+            width: 100%;
+            margin-top: 15px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .btn-back:hover {
+            color: var(--dark);
+        }
+
+        /* Processing Overlay */
+        .loader-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .custom-loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f1f5f9;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 900px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+            .summary-box {
+                position: static;
+            }
+            .checkout-wrapper {
+                margin: 20px auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+            .stepper {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="checkout-nav">
+        <div class="nav-container">
+            <a href="/" class="logo">Travel<span>GO</span></a>
+            <div class="secure-badge">
+                <i class="fas fa-lock"></i>
+                Secure Checkout
+            </div>
+        </div>
+    </nav>
+
+    <main class="checkout-wrapper">
+        <!-- Progress Stepper -->
+        <div class="stepper">
+            <div class="step completed">
+                <div class="step-circle"><i class="fas fa-check"></i></div>
+                <div class="step-label">Details</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step active">
+                <div class="step-circle">2</div>
+                <div class="step-label">Payment</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-label">Confirm</div>
+            </div>
+        </div>
+
+        <div class="checkout-grid">
+            <!-- Payment Section -->
+            <div class="payment-box">
+                <div class="payment-header">
+                    <h2>Select Payment Method</h2>
+                    <p>Complete your booking by scanning the QR code below</p>
+                </div>
+                <div class="payment-body">
+                    <div class="payment-method-card">
+                        <div class="method-title">
+                            <div class="method-info">
+                                <i class="fas fa-qrcode"></i>
+                                <span>UPI Payment (Google Pay / PhonePe)</span>
+                            </div>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo.png/640px-UPI-Logo.png" alt="UPI" height="20">
+                        </div>
+                        
+                        <div class="qr-area">
+                            <div class="qr-wrapper">
+                                <img src="/images/upi-qr.png" alt="Scan to Pay">
+                            </div>
+                            
+                            <div class="countdown-timer" id="statusMsg">
+                                <i class="fas fa-spinner fa-spin"></i> Waiting for payment... (<span id="countdown">30</span>s)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-cards">
+                        <div class="info-card">
+                            <i class="fas fa-shield-check"></i>
+                            <div>
+                                <h5>Safe & Secure</h5>
+                                <p>Your payment is encrypted and processed safely.</p>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <i class="fas fa-bolt"></i>
+                            <div>
+                                <h5>Instant Confirmation</h5>
+                                <p>Get your booking voucher immediately after payment.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="summary-box">
+                <div class="summary-card">
+                    <h3>Booking Summary</h3>
+                    
+                    <div class="destination-preview">
+                        <img src="" id="summImg" alt="Destination" class="preview-img">
+                        <div class="preview-text">
+                            <h4 id="summPackage">-</h4>
+                            <p id="summID">Booking ID: -</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Travel Date</span>
+                            <span class="detail-value" id="summDate">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Traveler Name</span>
+                            <span class="detail-value" id="summName">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value" style="color: #f59e0b;">Awaiting Payment</span>
+                        </div>
+                    </div>
+
+                    <div class="total-section">
+                        <span class="total-label">Amount to Pay</span>
+                        <span class="total-price" id="summAmount">Rs 0</span>
+                    </div>
+
+                    <button class="btn-confirm" id="btnConfirm" disabled>
+                        <i class="fas fa-check-circle"></i> Confirm Booking
+                    </button>
+                    
+                    <button class="btn-back" onclick="window.history.back()">Back to Details</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="loader-overlay" id="loader">
+        <div class="custom-loader"></div>
+        <p style="margin-top: 20px; font-weight: 600;">Verifying Payment...</p>
+    </div>
+
+    <script>
+        // Data Handling
+        const bookingData = JSON.parse(sessionStorage.getItem('pendingBooking'));
+        const bookingId = "TGO-" + Math.floor(Math.random() * 90000 + 10000);
+
+        if(!bookingData) {
+            window.location.href = '/';
+        } else {
+            // Update UI with booking data
+            document.getElementById('summPackage').textContent = bookingData.travelSpot;
+            document.getElementById('summAmount').textContent = bookingData.price;
+            document.getElementById('summID').textContent = "Booking ID: " + bookingId;
+            document.getElementById('summName').textContent = bookingData.fullName || bookingData.name || "Guest";
+            document.getElementById('summDate').textContent = bookingData.travelDate;
+            
+            // Set preview image (mapping based on spot names)
+            const spotImg = bookingData.travelSpot.toLowerCase().split(',')[0].trim();
+            document.getElementById('summImg').src = `/images/${spotImg}.png`;
+            // Fallback for image
+            document.getElementById('summImg').onerror = function() {
+                this.src = '/images/bali.png';
+            }
+        }
+
+        // Timer Logic
+        let timeLeft = 30;
+        const countdownEl = document.getElementById('countdown');
+        const btnConfirm = document.getElementById('btnConfirm');
+        const statusMsg = document.getElementById('statusMsg');
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            if (countdownEl) countdownEl.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                btnConfirm.disabled = false;
+                statusMsg.innerHTML = '<i class="fas fa-check-circle" style="color: #10b981;"></i> Payment Received! Ready to confirm.';
+                statusMsg.style.color = "#10b981";
+                statusMsg.style.borderColor = "#bbf7d0";
+                statusMsg.style.backgroundColor = "#f0fdf4";
+            }
+        }, 1000);
+
+        // Submit Logic
+        btnConfirm.onclick = async function() {
+            this.disabled = true;
+            document.getElementById('loader').style.display = 'flex';
+
+            setTimeout(async () => {
+                try {
+                    const response = await fetch('/api/bookings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ...bookingData,
+                            paymentStatus: 'Paid',
+                            bookingId: bookingId
+                        })
+                    });
+
+                    if (response.ok) {
+                        sessionStorage.setItem('confirmedBooking', JSON.stringify({
+                            ...bookingData,
+                            bookingId: bookingId
+                        }));
+                        window.location.href = '/success.html';
+                    } else {
+                        alert('Something went wrong. Please try again.');
+                        document.getElementById('loader').style.display = 'none';
+                        this.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Connection failed.');
+                    document.getElementById('loader').style.display = 'none';
+                    this.disabled = false;
+                }
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <!-- Navbar -->
@@ -18,8 +17,9 @@
                 <li><a href="#home">Home</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#destinations">Destinations</a></li>
+                <li><a href="#book">Inquiry</a></li>
                 <li><a href="#reviews">Reviews</a></li>
-                <li class="admin-tab"><a href="/admin" class="admin-btn">Admin Dashboard</a></li>
+                <li class="admin-tab"><a href="/admin" class="admin-btn">Admin</a></li>
             </ul>
             <div class="menu-btn">
                 <div class="bar"></div>
@@ -31,9 +31,15 @@
 
     <!-- Hero Section -->
     <header id="home" class="hero">
+        <div class="hero-bg-container">
+            <div class="hero-bg active" style="background-image: url('images/nature_mountains.png');"></div>
+            <div class="hero-bg" style="background-image: url('images/nature_oceans.png');"></div>
+            <div class="hero-bg" style="background-image: url('images/nature_deserts.png');"></div>
+            <div class="hero-bg" style="background-image: url('images/bali.png');"></div>
+        </div>
         <div class="hero-content">
-            <h1>Travel Beyond Boundaries</h1>
-            <p>Experience the world's most breathtaking destinations with our curated travel packages.</p>
+            <h1 id="heroTitle">Peak Adventures Await</h1>
+            <p id="heroDesc">Conquer the world's most majestic summits with our expert guides.</p>
             <a href="#destinations" class="btn">Explore Now</a>
         </div>
     </header>
@@ -416,28 +422,100 @@
     <section id="reviews" class="reviews">
         <div class="container">
             <h2 class="section-title">Traveler Reviews</h2>
-            <div class="review-grid">
-                <div class="review-card">
-                    <div class="user-info">
-                        <div class="avatar">S</div>
-                        <div>
-                            <h4>Sarah Johnson</h4>
-                            <p>Bali Trip</p>
+            <div class="reviews-marquee">
+                <div class="marquee-content">
+                    <!-- Original Reviews -->
+                    <div class="review-card">
+                        <div class="user-info">
+                            <div class="avatar">S</div>
+                            <div>
+                                <h4>Sarah Johnson</h4>
+                                <p>Bali Trip</p>
+                            </div>
                         </div>
+                        <p class="review-text">"An absolutely amazing experience! The Bali trip was curated perfectly. Highly recommended!"</p>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
                     </div>
-                    <p class="review-text">"An absolutely amazing experience! The Bali trip was curated perfectly. Highly recommended!"</p>
-                    <div class="rating">⭐⭐⭐⭐⭐</div>
-                </div>
-                <div class="review-card">
-                    <div class="user-info">
-                        <div class="avatar">M</div>
-                        <div>
-                            <h4>Michael Chen</h4>
-                            <p>Japan Tour</p>
+                    <div class="review-card">
+                        <div class="user-info">
+                            <div class="avatar">M</div>
+                            <div>
+                                <h4>Michael Chen</h4>
+                                <p>Japan Tour</p>
+                            </div>
                         </div>
+                        <p class="review-text">"TravelGO made our Japan trip seamless. The guides were professional and the itinerary was great."</p>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
                     </div>
-                    <p class="review-text">"TravelGO made our Japan trip seamless. The guides were professional and the itinerary was great."</p>
-                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                    <!-- New Reviews -->
+                    <div class="review-card">
+                        <div class="user-info">
+                            <div class="avatar" style="background: #ff4757;">A</div>
+                            <div>
+                                <h4>Amit Sharma</h4>
+                                <p>Manali Pack</p>
+                            </div>
+                        </div>
+                        <p class="review-text">"Best family vacation ever! The hotel in Manali was top-notch and the price was very budget-friendly."</p>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="review-card">
+                        <div class="user-info">
+                            <div class="avatar" style="background: #2ed573;">E</div>
+                            <div>
+                                <h4>Emma Wilson</h4>
+                                <p>Paris Romance</p>
+                            </div>
+                        </div>
+                        <p class="review-text">"The Paris dinner cruise was the highlight of our trip. Everything was managed perfectly by TravelGO."</p>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="review-card">
+                        <div class="user-info">
+                            <div class="avatar" style="background: #3a86ff;">R</div>
+                            <div>
+                                <h4>Rahul Patil</h4>
+                                <p>Kerala Trip</p>
+                            </div>
+                        </div>
+                        <p class="review-text">"Houseboat stay in Alleppey was magical. Great service and very helpful guides throughout the journey."</p>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    
+                    <!-- Duplicate for infinite loop -->
+                    <div class="review-card">
+                        <div class="user-info">
+                            <div class="avatar">S</div>
+                            <div>
+                                <h4>Sarah Johnson</h4>
+                                <p>Bali Trip</p>
+                            </div>
+                        </div>
+                        <p class="review-text">"An absolutely amazing experience! The Bali trip was curated perfectly. Highly recommended!"</p>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="review-card">
+                        <div class="user-info">
+                            <div class="avatar">M</div>
+                            <div>
+                                <h4>Michael Chen</h4>
+                                <p>Japan Tour</p>
+                            </div>
+                        </div>
+                        <p class="review-text">"TravelGO made our Japan trip seamless. The guides were professional and the itinerary was great."</p>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <div class="review-card">
+                        <div class="user-info">
+                            <div class="avatar" style="background: #ff4757;">A</div>
+                            <div>
+                                <h4>Amit Sharma</h4>
+                                <p>Manali Pack</p>
+                            </div>
+                        </div>
+                        <p class="review-text">"Best family vacation ever! The hotel in Manali was top-notch and the price was very budget-friendly."</p>
+                        <div class="rating">⭐⭐⭐⭐⭐</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -497,7 +575,7 @@
         </div>
     </footer>
 
-    <!-- Booking Modal -->
+          <!-- Booking Confirmation Modal -->
     <div id="bookingModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -507,39 +585,63 @@
                     <div id="modalPrice" class="modal-price-tag"></div>
                 </div>
                 <div class="modal-form-area">
-                    <h2 id="modalTitle">Complete Your Booking</h2>
-                    <p id="modalDuration" class="modal-duration-text"></p>
+                    <div class="modal-header">
+                        <span class="modal-subtitle">Secure Your Spot</span>
+                        <h2 id="modalTitle">Complete Your Booking</h2>
+                        <div id="modalDuration" class="modal-duration-badge"></div>
+                    </div>
                     
-                    <form id="modalInquiryForm">
+                    <form id="modalInquiryForm" class="modern-form">
                         <div class="modal-input-grid">
                             <div class="input-group">
-                                <label>Preferred Date</label>
+                                <label><i class="far fa-calendar-alt"></i> Preferred Date</label>
                                 <input type="date" id="modalDate" required>
                             </div>
                             <div class="input-group">
-                                <label>Travel Mode</label>
-                                <div class="travel-mode-toggle">
-                                    <label><input type="radio" name="mode" value="Flight" checked> ✈️ Flight</label>
-                                    <label><input type="radio" name="mode" value="Train"> 🚆 Train</label>
+                                <label><i class="fas fa-plane"></i> Travel Mode</label>
+                                <div class="travel-mode-options">
+                                    <input type="radio" name="mode" id="flightMode" value="Flight" checked>
+                                    <label for="flightMode" class="mode-card">
+                                        <i class="fas fa-plane"></i>
+                                        <span>Flight</span>
+                                    </label>
+                                    
+                                    <input type="radio" name="mode" id="trainMode" value="Train">
+                                    <label for="trainMode" class="mode-card">
+                                        <i class="fas fa-train"></i>
+                                        <span>Train</span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="input-group">
-                                <label>Full Name</label>
-                                <input type="text" id="modalName" placeholder="Your Name" required>
+                                <label><i class="far fa-user"></i> Full Name</label>
+                                <input type="text" id="modalName" placeholder="Enter your full name" required>
                             </div>
                             <div class="input-group">
-                                <label>Mobile No.</label>
-                                <input type="tel" id="modalPhone" placeholder="10-digit number" pattern="[0-9]{10}" title="Please enter a 10-digit mobile number" maxlength="10" required>
+                                <label><i class="fas fa-mobile-alt"></i> Mobile No.</label>
+                                <input type="tel" id="modalPhone" placeholder="10-digit number" pattern="[0-9]{10}" maxlength="10" required>
                             </div>
                         </div>
-                        <div class="modal-highlights">
-                            <ul>
-                                <li>✨ Premium Accomodation</li>
-                                <li>🍱 Daily Breakfast & Dinner</li>
-                                <li>🚐 Guided City Tours</li>
-                            </ul>
+                        
+                        <div class="modal-perks">
+                            <div class="perk-item">
+                                <i class="fas fa-hotel"></i>
+                                <span>Premium Hotel</span>
+                            </div>
+                            <div class="perk-item">
+                                <i class="fas fa-utensils"></i>
+                                <span>All Meals</span>
+                            </div>
+                            <div class="perk-item">
+                                <i class="fas fa-camera"></i>
+                                <span>Sightseeing</span>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-confirm">Confirm Booking</button>
+                        
+                        <button type="submit" class="btn btn-confirm">
+                            <span>Confirm & Pay Now</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
                     </form>
                 </div>
             </div>

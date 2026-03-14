@@ -59,7 +59,8 @@ const bookingSchema = new mongoose.Schema({
     travelMode: { type: String, required: true },
     price: { type: String, required: true },
     duration: { type: String, required: true },
-    paymentStatus: { type: String, default: 'Success' },
+    paymentStatus: { type: String, default: 'Paid' },
+    bookingId: { type: String },
     submittedAt: { type: Date, default: Date.now }
 });
 
@@ -82,9 +83,9 @@ app.post('/api/inquiries', async (req, res) => {
 // 2. Submit Booking (Modal Form)
 app.post('/api/bookings', async (req, res) => {
     try {
-        const { fullName, mobileNumber, travelDate, travelSpot, travelMode, price, duration } = req.body;
+        const { fullName, mobileNumber, travelDate, travelSpot, travelMode, price, duration, paymentStatus, bookingId } = req.body;
         const newBooking = new Booking({ 
-            fullName, mobileNumber, travelDate, travelSpot, travelMode, price, duration 
+            fullName, mobileNumber, travelDate, travelSpot, travelMode, price, duration, paymentStatus, bookingId
         });
         await newBooking.save();
         res.status(201).json({ success: true, message: 'Booking confirmed successfully' });

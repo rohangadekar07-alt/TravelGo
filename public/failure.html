@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed | TravelGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff4757;
+            --error: #ff4757;
+            --dark: #2f3542;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f1f2f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .error-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .icon {
+            font-size: 60px;
+            color: var(--error);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        p {
+            color: #747d8c;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background: var(--dark);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            display: inline-block;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-card">
+        <div class="icon"><i class="fas fa-times-circle"></i></div>
+        <h1>Payment Failed</h1>
+        <p>We couldn't process your payment. Please check your card details or try again later. If the amount was deducted, it will be refunded automatically.</p>
+        <a href="/" class="btn">Try Again</a>
+    </div>
+</body>
+</html>
