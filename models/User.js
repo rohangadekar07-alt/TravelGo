@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema({
     verificationToken: { type: String },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    profileImage: { type: String, default: '' }, // Path to profile image
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

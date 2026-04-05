@@ -311,6 +311,8 @@
 
                 if (data.success && data.paymentStatus === 'Cash Confirmed') {
                     updateUIToConfirmed();
+                } else if (data.success && data.paymentStatus === 'Cancelled') {
+                    updateUIToCancelled();
                 }
             } catch (err) {
                 lastCheckEl.innerHTML = '<i class="fas fa-server" style="color:#ef4444;"></i> Server connection issue...';
@@ -361,6 +363,48 @@
                         <i class="fas fa-ticket-alt"></i> View Booking Details
                     </a>
                 </div>
+            `;
+        }
+
+        function updateUIToCancelled() {
+            // Stop polling
+            if (window.statusInterval) clearInterval(window.statusInterval);
+
+            // 1. Change Icon
+            const iconWrap = document.querySelector('.icon-wrap');
+            iconWrap.style.background = 'linear-gradient(135deg, #fee2e2, #fecdd3)';
+            iconWrap.innerHTML = '<i class="fas fa-times" style="color: #ef4444;"></i>';
+            iconWrap.style.animation = 'none';
+
+            // 2. Update Title/Text
+            document.getElementById('mainTitle').textContent = 'Request Cancelled';
+            document.getElementById('mainSubtitle').textContent = 'Your booking request has been cancelled by the admin. Please contact support or try a different payment method.';
+            
+            // 3. Update Status Steps
+            const stepPending = document.getElementById('stepPending');
+            stepPending.className = 'step-dot';
+            stepPending.style.background = '#ef4444';
+            stepPending.style.color = 'white';
+            stepPending.innerHTML = '<i class="fas fa-times"></i>';
+
+            // 4. Update Info Box Status
+            const statusEl = document.getElementById('displayStatus');
+            statusEl.textContent = '❌ Request Cancelled';
+            statusEl.style.color = '#ef4444';
+
+            // 5. Update Notice
+            const notice = document.getElementById('statusNotice');
+            notice.style.background = '#fff1f2';
+            notice.style.borderColor = '#fecdd3';
+            notice.style.color = '#991b1b';
+            notice.innerHTML = '<i class="fas fa-exclamation-circle"></i> <span>This request is no longer active. You can start a new booking process from the home page.</span>';
+
+            // 6. Action Button
+            lastCheckEl.style.display = 'none';
+            document.getElementById('actionBtnArea').innerHTML = `
+                <a href="/" class="btn-home" style="background: #374151;">
+                    <i class="fas fa-redo"></i> Browse Other Packages
+                </a>
             `;
         }
 

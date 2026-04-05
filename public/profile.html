@@ -65,17 +65,51 @@
         }
 
         .avatar-huge {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             background: var(--primary);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 700;
             font-family: 'Outfit', sans-serif;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .avatar-huge:hover .upload-overlay {
+            opacity: 1;
+        }
+
+        .upload-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: 0.3s;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .upload-overlay i {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
         }
 
         .user-info h1 {
@@ -290,7 +324,14 @@
 
     <div class="container">
         <div class="profile-header">
-            <div class="avatar-huge" id="avatarChar">?</div>
+            <div class="avatar-huge" id="avatarChar" onclick="document.getElementById('profileInput').click()">
+                <span id="initialChar">?</span>
+                <div class="upload-overlay">
+                    <i class="fas fa-camera"></i>
+                    <span>Change</span>
+                </div>
+            </div>
+            <input type="file" id="profileInput" style="display: none;" accept="image/*" onchange="handleImageUpload(event)">
             <div class="user-info">
                 <h1 id="headerName">Loading...</h1>
                 <p id="headerEmail">...</p>
@@ -365,7 +406,17 @@
                     document.getElementById('detName').textContent = u.fullName;
                     document.getElementById('detMobile').textContent = u.mobileNumber;
                     document.getElementById('detAddress').textContent = u.address;
-                    document.getElementById('avatarChar').textContent = u.fullName.charAt(0).toUpperCase();
+                    
+                    const avatar = document.getElementById('avatarChar');
+                    const initialChar = document.getElementById('initialChar');
+                    
+                    if (u.profileImage) {
+                        avatar.style.backgroundImage = `url('${u.profileImage}')`;
+                        initialChar.style.display = 'none';
+                    } else {
+                        initialChar.textContent = u.fullName.charAt(0).toUpperCase();
+                        initialChar.style.display = 'block';
+                    }
                     
                     if (u.liveLocation && u.liveLocation.latitude) {
                         document.getElementById('detLocation').textContent = 'Live Location Shared ✅';
@@ -452,6 +503,42 @@
             } else {
                 document.getElementById('bookingsSection').style.display = 'none';
                 document.getElementById('inquiriesSection').style.display = 'flex';
+            }
+        }
+
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Preview instantly
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const avatar = document.getElementById('avatarChar');
+                avatar.style.backgroundImage = `url('${e.target.result}')`;
+                document.getElementById('initialChar').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to server
+            const formData = new FormData();
+            formData.append('profileImage', file);
+
+            try {
+                const res = await fetch('/api/user/upload-image', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    // Update successful
+                    console.log('Profile image updated:', data.imagePath);
+                } else {
+                    alert(data.message || 'Upload failed');
+                }
+            } catch (err) {
+                console.error('Upload Error:', err);
+                alert('Server error while uploading image.');
             }
         }
 

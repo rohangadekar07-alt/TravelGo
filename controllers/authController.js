@@ -2,7 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendVerificationEmail, sendOtpEmail, sendWelcomeEmail } = require('../services/emailService');
+const { sendVerificationEmail, sendOtpEmail, sendWelcomeEmail, sendResetOtpEmail } = require('../services/emailService');
 const OTP = require('../models/OTP');
 
 exports.sendOtp = async (req, res) => {
@@ -159,3 +159,55 @@ exports.login = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error', error: err.message });
     }
 };
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User with this email does not exist' });
+        }
+
+        // Generate 6 digit OTP
+        const resetOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.resetPasswordToken = resetOtp;
+        user.resetPasswordExpires = Date.now() + 600000; // 10 minutes
+        await user.save();
+
+        await sendResetOtpEmail(email, resetOtp);
+        res.json({ success: true, message: 'Password reset OTP sent to your email' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { email, otp, password } = req.body;
+        
+        const user = await User.findOne({
+            email: email,
+            resetPasswordToken: otp,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.json({ success: true, message: 'Password reset successfully!' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+

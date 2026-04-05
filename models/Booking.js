@@ -9,6 +9,8 @@ const bookingSchema = new mongoose.Schema({
     travelSpot: { type: String, required: true },
     travelMode: { type: String, required: true },
     price: { type: String, required: true },
+    basePrice: { type: Number },
+    platformFee: { type: Number, default: 0 },
     duration: { type: String, required: true },
     paymentStatus: { type: String, default: 'Paid' },
     paymentMethod: { type: String, default: 'Online' },

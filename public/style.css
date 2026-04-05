@@ -229,6 +229,29 @@ h1, h2, h3, h4, .logo {
     transform: scale(1.1);
 }
 
+#navProfileCircle {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar.scrolled #navProfileCircle {
+    border-color: var(--primary-color);
+}
+
+#navUserImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .menu-btn {
     display: none;
     flex-direction: column;

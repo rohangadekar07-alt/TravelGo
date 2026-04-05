@@ -95,8 +95,34 @@ const sendWelcomeEmail = async (email, name) => {
     return transporter.sendMail(mailOptions);
 };
 
+const sendResetOtpEmail = async (email, otp) => {
+    const mailOptions = {
+        from: `"TravelGO" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: 'Password Reset OTP - TravelGO',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 10px;">
+                <h2 style="color: #3a86ff; text-align: center;">Reset Your Password</h2>
+                <p>Hello,</p>
+                <p>Your OTP to reset your TravelGO password is:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <h1 style="background: #f4f7fe; color: #3a86ff; padding: 15px; border-radius: 8px; font-size: 32px; letter-spacing: 5px; display: inline-block; margin: 0;">${otp}</h1>
+                </div>
+                <p>This OTP is valid for 10 minutes. Do not share this OTP with anyone.</p>
+                <p>If you did not request a password reset, please ignore this email.</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="text-align: center; color: #777;">Stay Secure!<br><strong>Team TravelGO</strong></p>
+            </div>
+        `
+    };
+
+    return transporter.sendMail(mailOptions);
+};
+
 module.exports = {
     sendVerificationEmail,
     sendOtpEmail,
-    sendWelcomeEmail
+    sendWelcomeEmail,
+    sendResetOtpEmail
 };
+

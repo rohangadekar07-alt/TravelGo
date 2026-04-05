@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary: #3a86ff;
@@ -169,10 +170,11 @@
             border-radius: 16px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
             border: 1px solid #e5e7eb;
             transition: 0.3s;
+            overflow: hidden;
         }
 
         .inquiry-card:hover {
@@ -196,6 +198,8 @@
         .field-value {
             font-weight: 600;
             color: #111827;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .badge-spot {
@@ -360,6 +364,10 @@
                         margin-left: auto; display: none;
                     ">0</span>
                 </div>
+                <div class="nav-item" onclick="switchView('settings', this)">
+                    <span class="nav-icon"><i class="fas fa-cog"></i></span>
+                    <span class="nav-text">Settings</span>
+                </div>
                 <a href="/" class="nav-item" style="margin-top: auto; text-decoration: none; color: inherit;">
                     <span class="nav-icon"><i class="fas fa-house"></i></span>
                     <span class="nav-text">Back to Site</span>
@@ -475,6 +483,31 @@
                 </div>
                 <div id="cashConfirmedList" class="inquiry-grid" style="margin-bottom:50px;">
                     <div style="grid-column:1/-1;text-align:center;padding:20px;color:#9ca3af;">Loading...</div>
+                </div>
+            </div>
+
+            <!-- ── SETTINGS SECTION ── -->
+            <div id="settingsSection" style="display: none;">
+                <div class="section-header">
+                    <h3><i class="fas fa-cog" style="color: #64748b;"></i> Platform Configuration</h3>
+                </div>
+                <div class="inquiry-card" style="max-width: 500px; display: block;">
+                    <h4 style="margin: 0 0 15px 0; font-family: 'Outfit'; color: #111827;">Platform Fees & Taxes</h4>
+                    <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 20px;">
+                        Set a flat additional fee (in Rs) to be automatically added to the user's booking total.
+                    </p>
+                    <form id="settingsForm" style="display: flex; gap: 10px; align-items: flex-end;">
+                        <div class="field" style="flex-grow: 1;">
+                            <label class="field-label">Platform Fee Amount (Rs)</label>
+                            <input type="number" id="platformFeeInput" value="0" min="0" required
+                                style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 1rem; margin-top: 5px;">
+                        </div>
+                        <button type="submit" id="saveSettingsBtn" style="
+                            padding: 12px 24px; background: var(--primary); color: white;
+                            border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+                            transition: 0.3s;">Save</button>
+                    </form>
+                    <div id="settingsMsg" style="margin-top: 15px; font-size: 0.85rem; font-weight: 600;"></div>
                 </div>
             </div>
         </main>
@@ -623,25 +656,16 @@
                     bookingList.innerHTML = bookings.map(bnq => {
                         const isCashPending = bnq.paymentStatus === 'Cash Pending';
                         const isCashConfirmed = bnq.paymentStatus === 'Cash Confirmed';
-                        const borderColor = isCashPending ? '#f59e0b' : '#10b981';
+                        const isCancelled = bnq.paymentStatus === 'Cancelled';
+                        const borderColor = isCashPending ? '#f59e0b' : isCancelled ? '#ef4444' : '#10b981';
 
                         const statusHtml = isCashPending
                             ? `<span style="color:#d97706; font-weight:700;"><i class="fas fa-clock"></i> Cash Pending</span>`
                             : isCashConfirmed
                             ? `<span style="color:#10b981; font-weight:700;"><i class="fas fa-check-circle"></i> Cash Confirmed</span>`
+                            : isCancelled
+                            ? `<span style="color:#ef4444; font-weight:700;"><i class="fas fa-times-circle"></i> Cancelled</span>`
                             : `<span style="color:#10b981; font-weight:700;"><i class="fas fa-credit-card"></i> Paid Online</span>`;
-
-                        const confirmBtn = isCashPending
-                            ? `<button onclick="confirmCash('${bnq._id}')" style="
-                                margin-top: 10px; width: 100%; padding: 10px;
-                                background: linear-gradient(135deg, #f59e0b, #d97706);
-                                color: white; border: none; border-radius: 10px;
-                                font-size: 0.85rem; font-weight: 700; cursor: pointer;
-                                font-family: 'Outfit', sans-serif; display:flex;
-                                align-items:center; justify-content:center; gap:6px;">
-                                <i class="fas fa-check-circle"></i> Confirm Cash Payment
-                              </button>`
-                            : '';
 
                         return `
                             <div class="inquiry-card" style="border-left: 4px solid ${borderColor};" id="booking-${bnq._id}">
@@ -674,8 +698,7 @@
                                     <span class="field-label">Status</span>
                                     ${statusHtml}
                                 </div>
-                                ${confirmBtn}
-                                ${!isCashPending ? `
+                                ${!isCashPending && !isCancelled ? `
                                 <button onclick="openReceipt('${bnq._id}')" style="
                                     margin-top: 8px; width: 100%; padding: 8px;
                                     background: white; color: var(--primary); 
@@ -684,6 +707,14 @@
                                     font-family: 'Outfit', sans-serif; display:flex;
                                     align-items:center; justify-content:center; gap:6px;">
                                     <i class="fas fa-file-invoice"></i> View Receipt
+                                </button>` : ''}
+                                ${isCashPending ? `
+                                <button onclick="cancelCashRequest('${bnq._id}')" style="
+                                    margin-top: 5px; width: 100%; padding: 8px;
+                                    background: #fff1f2; color: #e11d48; border: 1.5px solid #fecdd3; border-radius: 10px;
+                                    font-size: 0.75rem; font-weight: 700; cursor: pointer;
+                                    font-family: 'Outfit', sans-serif;">
+                                    <i class="fas fa-times-circle"></i> Cancel Request
                                 </button>` : ''}
                             </div>
                         `;
@@ -797,15 +828,25 @@
                             <span class="field-value" style="font-weight:700; color:#e11d48;">${bnq.price}</span>
                         </div>
                         ${isPending ? `
-                        <button onclick="confirmCash('${bnq._id}')" style="
-                            margin-top: 10px; width: 100%; padding: 10px;
-                            background: linear-gradient(135deg, #f59e0b, #d97706);
-                            color: white; border: none; border-radius: 10px;
-                            font-size: 0.85rem; font-weight: 700; cursor: pointer;
-                            font-family: 'Outfit', sans-serif; display:flex;
-                            align-items:center; justify-content:center; gap:6px;">
-                            <i class="fas fa-check-circle"></i> Confirm Cash
-                        </button>` : `
+                        <div style="display: flex; gap: 8px; margin-top: 10px;">
+                            <button onclick="confirmCash('${bnq._id}')" style="
+                                flex: 2; padding: 10px;
+                                background: linear-gradient(135deg, #f59e0b, #d97706);
+                                color: white; border: none; border-radius: 10px;
+                                font-size: 0.85rem; font-weight: 700; cursor: pointer;
+                                font-family: 'Outfit', sans-serif; display:flex;
+                                align-items:center; justify-content:center; gap:6px;">
+                                <i class="fas fa-check-circle"></i> Confirm Cash
+                            </button>
+                            <button onclick="cancelCashRequest('${bnq._id}')" style="
+                                flex: 1; padding: 10px;
+                                background: #fff1f2; color: #e11d48; border: 1.5px solid #fecdd3; 
+                                border-radius: 10px; font-size: 0.85rem; font-weight: 700; cursor: pointer;
+                                font-family: 'Outfit', sans-serif; display:flex;
+                                align-items:center; justify-content:center;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>` : `
                         <div class="field" style="margin-top:10px; padding-top:10px; border-top:1px dashed #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
                             <span style="color:#10b981; font-weight:700; font-size:0.85rem;"><i class="fas fa-check-double"></i> Confirmed</span>
                             <button onclick="openReceipt('${bnq._id}')" title="Print Receipt" style="border:none; background:#ecfdf5; color:#10b981; padding:5px 10px; border-radius:6px; cursor:pointer;">
@@ -835,7 +876,17 @@
 
         // ── Confirm Cash Payment ──
         async function confirmCash(bookingDbId) {
-            if (!confirm('Confirm cash payment for this booking?')) return;
+            const result = await Swal.fire({
+                title: 'Confirm Payment?',
+                text: "Are you sure you want to mark this booking as paid via cash?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Confirm It!'
+            });
+
+            if (!result.isConfirmed) return;
             
             // Find both potential buttons (in dashboard list and cash list)
             const btns = document.querySelectorAll(`button[onclick*="${bookingDbId}"]`);
@@ -849,13 +900,12 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    // Update the cards in both grids in-place
+                    // Update UI cards
                     const selectors = [`#booking-${bookingDbId}`, `#cash-card-${bookingDbId}`];
                     selectors.forEach(sel => {
                         const card = document.querySelector(sel);
                         if (card) {
                             card.style.borderLeftColor = '#10b981';
-                            // Update all status text inside card
                             const allSpans = card.querySelectorAll('span');
                             allSpans.forEach(s => {
                                 if (s.textContent.includes('Cash Pending')) {
@@ -863,54 +913,65 @@
                                     s.style.color = '#10b981';
                                 }
                             });
-                            // Remove confirm button
                             const btn = card.querySelector('button');
                             if (btn) btn.remove();
-                            // Update badge color
                             const badge = card.querySelector('.badge-spot');
                             if (badge) { badge.style.background = '#ecfdf5'; badge.style.color = '#065f46'; }
                         }
                     });
 
-                    alert('✅ Cash payment confirmed! User page will update instantly.');
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Cash payment confirmed successfully.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                     
-                    loadDashboardData(); // Refresh global data & sidebar badge
-                    setTimeout(() => {
-                        if (document.getElementById('cashSection').style.display === 'block') {
-                            renderCashSection();
-                        }
-                    }, 500);
+                    await loadDashboardData(); 
+                    if (document.getElementById('cashSection').style.display === 'block') {
+                        renderCashSection();
+                    }
                 } else {
-                    alert('Failed to confirm: ' + data.message);
+                    Swal.fire('Error', data.message || 'Confirmation failed.', 'error');
                     btns.forEach(b => {
                         b.disabled = false;
-                        b.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Cash Payment';
+                        b.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Cash';
                     });
                 }
             } catch (err) {
-                alert('Server error. Check if MongoDB is connected.');
+                Swal.fire('Connection Error', 'Server is not responding.', 'error');
                 btns.forEach(b => {
                     b.disabled = false;
-                    b.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Cash Payment';
+                    b.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Cash';
                 });
             }
         }
 
         async function clearData() {
-            if (!confirm('🛑 WARNING: This will permanently delete ALL inquiries and bookings. Are you sure?')) return;
-            if (!confirm('Final Confirmation: Are you absolutely sure you want to wipe all data?')) return;
+            const result = await Swal.fire({
+                title: 'Reset Database?',
+                text: "WARNING: This will permanently delete ALL inquiries and bookings. This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, DELETE ALL'
+            });
+
+            if (!result.isConfirmed) return;
 
             try {
                 const res = await fetch('/api/admin/clear-data', { method: 'DELETE' });
                 const data = await res.json();
                 if (data.success) {
-                    alert('✨ Database cleared successfully!');
-                    loadDashboardData(); // Refresh UI
+                    Swal.fire('Deleted!', 'Database cleared successfully.', 'success');
+                    await loadDashboardData(); 
                 } else {
-                    alert('Error: ' + data.message);
+                    Swal.fire('Error', data.message, 'error');
                 }
             } catch (err) {
-                alert('Server error while clearing data.');
+                Swal.fire('Error', 'Server connection failed.', 'error');
             }
         }
 
@@ -941,10 +1002,11 @@
             const confirmedSection = document.getElementById('confirmedSection');
             const inquirySection = document.getElementById('inquirySection');
             const cashSection = document.getElementById('cashSection');
+            const settingsSection = document.getElementById('settingsSection');
             const headerTitle = document.querySelector('.content-header h2');
 
             // Hide all
-            [statsSection, confirmedSection, inquirySection, cashSection].forEach(s => s.style.display = 'none');
+            [statsSection, confirmedSection, inquirySection, cashSection, settingsSection].forEach(s => s.style.display = 'none');
 
             if (view === 'all') {
                 statsSection.style.display = 'block';
@@ -959,8 +1021,97 @@
                 cashSection.style.display = 'block';
                 headerTitle.textContent = 'Cash Bookings';
                 renderCashSection();
+            } else if (view === 'settings') {
+                settingsSection.style.display = 'block';
+                headerTitle.textContent = 'Platform Settings';
+                loadSettings();
             }
         }
+        
+        // ── Cancel Cash Request ──
+        async function cancelCashRequest(bookingDbId) {
+            const result = await Swal.fire({
+                title: 'Cancel Request?',
+                text: "This will cancel the booking and notify the user. Continue?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Cancel it'
+            });
+
+            if (!result.isConfirmed) return;
+            
+            try {
+                const res = await fetch(`/api/bookings/${bookingDbId}/cancel`, { method: 'PATCH' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Cancelled',
+                        text: 'Booking request has been cancelled.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    await loadDashboardData();
+                    if (document.getElementById('cashSection').style.display === 'block') {
+                        renderCashSection();
+                    }
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            } catch (err) {
+                Swal.fire('Error', 'Server error.', 'error');
+            }
+        }
+
+        // Settings Logic
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings/platform-fee');
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('platformFeeInput').value = data.platformFee;
+                }
+            } catch (err) {
+                console.error("Failed to load settings", err);
+            }
+        }
+
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveSettingsBtn');
+            const msg = document.getElementById('settingsMsg');
+            const feeValue = document.getElementById('platformFeeInput').value;
+            
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/admin/settings/platform-fee', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ value: feeValue })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    msg.textContent = 'Fee updated successfully!';
+                    msg.style.color = '#10b981';
+                } else {
+                    msg.textContent = 'Failed to update: ' + data.message;
+                    msg.style.color = '#ef4444';
+                }
+            } catch (err) {
+                msg.textContent = 'Server error.';
+                msg.style.color = '#ef4444';
+            } finally {
+                btn.textContent = 'Save';
+                btn.disabled = false;
+                setTimeout(() => msg.textContent = '', 3000);
+            }
+        });
 
         // Logout Logic
         document.getElementById('logoutBtn').addEventListener('click', () => {

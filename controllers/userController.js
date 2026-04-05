@@ -64,3 +64,27 @@ exports.getUserHistory = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
+
+exports.uploadProfileImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file uploaded' });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Store path to the file
+        const imagePath = `/uploads/profiles/${req.file.filename}`;
+        user.profileImage = imagePath;
+        await user.save();
+
+        res.json({ success: true, message: 'Profile image updated successfully', imagePath });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+

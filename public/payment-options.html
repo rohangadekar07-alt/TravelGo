@@ -488,10 +488,33 @@
             document.getElementById('summaryDate').textContent = booking.travelDate || '—';
             document.getElementById('summaryName').textContent = booking.fullName || '—';
             document.getElementById('summaryMode').textContent = booking.travelMode || '—';
-            document.getElementById('summaryPrice').textContent = booking.price || '—';
-            // booking ID
+            
+            // Booking ID
             const bookingId = 'TGO-' + Math.floor(10000 + Math.random() * 90000);
             document.getElementById('summaryBookingId').textContent = `Booking ID: ${bookingId}`;
+
+            // Handle Pricing with Platform Fee
+            let basePrice = parseInt(String(booking.price).replace(/[^0-9]/g, '')) || 0;
+            // Prevent double adding if user goes back
+            if (booking.basePrice) { basePrice = booking.basePrice; }
+
+            fetch('/api/settings/platform-fee')
+                .then(res => res.json())
+                .then(data => {
+                    let platformFee = 0;
+                    if(data.success && data.platformFee) { platformFee = Number(data.platformFee); }
+                    finalizePricing(basePrice, platformFee);
+                })
+                .catch(err => finalizePricing(basePrice, 0));
+
+            function finalizePricing(baseP, fee) {
+                const total = baseP + fee;
+                booking.basePrice = baseP;
+                booking.platformFee = fee;
+                booking.price = "Rs " + total.toLocaleString(); // Total string
+                document.getElementById('summaryPrice').textContent = booking.price;
+                sessionStorage.setItem('pendingBooking', JSON.stringify(booking)); // Save back
+            }
         }
 
         // ── Method Selection ──
@@ -556,6 +579,8 @@
                             travelSpot: bookingData.travelSpot,
                             travelMode: bookingData.travelMode,
                             price: bookingData.price,
+                            basePrice: bookingData.basePrice,
+                            platformFee: bookingData.platformFee,
                             duration: bookingData.duration,
                             paymentStatus: 'Cash Pending',
                             paymentMethod: 'Cash',

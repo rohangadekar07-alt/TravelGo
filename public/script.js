@@ -1,4 +1,4 @@
-// Auth UI Toggle
+// Auth UI Toggle and Date Restriction
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     const authLinks = document.getElementById('authLinks');
@@ -7,9 +7,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if (token) {
         if (authLinks) authLinks.style.display = 'none';
         if (userProfile) userProfile.style.display = 'block';
+        
+        // Fetch profile to see if there's an image
+        fetch('/api/user/profile', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.user.profileImage) {
+                const navImg = document.getElementById('navUserImage');
+                const defaultIcon = document.getElementById('navDefaultAvatar');
+                if (navImg && defaultIcon) {
+                    navImg.src = data.user.profileImage;
+                    navImg.style.display = 'block';
+                    defaultIcon.style.display = 'none';
+                }
+            }
+        }).catch(err => console.error('Profile fetch failed', err));
+
     } else {
         if (authLinks) authLinks.style.display = 'flex';
         if (userProfile) userProfile.style.display = 'none';
+    }
+
+    // Set dynamic date restrictions (Today as minimum)
+    const today = new Date().toLocaleDateString('en-CA'); // Get local date in YYYY-MM-DD format
+    const travelDate = document.getElementById('travelDate');
+    const modalDate = document.getElementById('modalDate');
+    
+    if (travelDate) {
+        travelDate.setAttribute('min', today);
+        // travelDate.value = today; // Optional: default to today
+    }
+    if (modalDate) {
+        modalDate.setAttribute('min', today);
+        // modalDate.value = today; // Optional: default to today
     }
 });
 

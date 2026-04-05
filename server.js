@@ -19,6 +19,7 @@ app.get('/api/config', (req, res) => {
 });
 
 app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 
 // Request Logger & DB Monitor
 app.use((req, res, next) => {
@@ -56,12 +57,20 @@ mongoose.connection.on('error', err => {
 const Inquiry = require('./models/Inquiry');
 const Booking = require('./models/Booking');
 const User = require('./models/User');
+const Setting = require('./models/Setting');
 
 // Routes
 // 1. Submit Inquiry (Main Form)
 app.post('/api/inquiries', async (req, res) => {
     try {
         const { fullName, email, mobileNumber, travelDate, travelSpot } = req.body;
+
+        // Date Validation: Prevent past dates
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (new Date(travelDate) < today) {
+            return res.status(400).json({ success: false, message: 'Invalid travel date. Past dates are not allowed.' });
+        }
         
         // Optional: Check if user is logged in
         let userId = null;
@@ -91,7 +100,14 @@ app.post('/api/inquiries', async (req, res) => {
 // 2. Submit Booking (Modal Form)
 app.post('/api/bookings', async (req, res) => {
     try {
-        const { fullName, email, mobileNumber, travelDate, travelSpot, travelMode, price, duration, paymentStatus, paymentMethod, bookingId } = req.body;
+        const { fullName, email, mobileNumber, travelDate, travelSpot, travelMode, price, basePrice, platformFee, duration, paymentStatus, paymentMethod, bookingId } = req.body;
+
+        // Date Validation: Prevent past dates
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (new Date(travelDate) < today) {
+            return res.status(400).json({ success: false, message: 'Invalid travel date. Past dates are not allowed.' });
+        }
         
         // Optional: Check if user is logged in
         let userId = null;
@@ -105,7 +121,7 @@ app.post('/api/bookings', async (req, res) => {
 
         const newBooking = new Booking({ 
             userId,
-            fullName, email, mobileNumber, travelDate, travelSpot, travelMode, price, duration,
+            fullName, email, mobileNumber, travelDate, travelSpot, travelMode, price, basePrice, platformFee, duration,
             paymentStatus: paymentStatus || 'Paid',
             paymentMethod: paymentMethod || 'Online',
             bookingId
@@ -133,6 +149,23 @@ app.patch('/api/bookings/:id/confirm-cash', async (req, res) => {
         res.json({ success: true, message: 'Cash payment confirmed', booking });
     } catch (err) {
         console.error('[Confirm Error]', err);
+        res.status(500).json({ success: false, message: 'Server error', error: err.message });
+    }
+});
+
+// 2d. Admin: Cancel Booking
+app.patch('/api/bookings/:id/cancel', async (req, res) => {
+    try {
+        const booking = await Booking.findByIdAndUpdate(
+            req.params.id,
+            { paymentStatus: 'Cancelled' },
+            { new: true }
+        );
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
+        }
+        res.json({ success: true, message: 'Booking cancelled', booking });
+    } catch (err) {
         res.status(500).json({ success: false, message: 'Server error', error: err.message });
     }
 });
@@ -207,6 +240,36 @@ app.delete('/api/admin/clear-data', async (req, res) => {
 // Serve the admin page explicitly if needed
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// 6. Settings API
+app.get('/api/settings/platform-fee', async (req, res) => {
+    try {
+        let setting = await Setting.findOne({ key: 'platformFee' });
+        if (!setting) {
+             setting = new Setting({ key: 'platformFee', value: 0 });
+             await setting.save();
+        }
+        res.json({ success: true, platformFee: setting.value });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Server error', error: err.message });
+    }
+});
+
+app.post('/api/admin/settings/platform-fee', async (req, res) => {
+    try {
+        const { value } = req.body;
+        let setting = await Setting.findOne({ key: 'platformFee' });
+        if (!setting) {
+             setting = new Setting({ key: 'platformFee', value: Number(value) });
+        } else {
+             setting.value = Number(value);
+        }
+        await setting.save();
+        res.json({ success: true, message: 'Platform fee updated successfully', platformFee: setting.value });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Server error', error: err.message });
+    }
 });
 
 // 5. 404 Handler (JSON)

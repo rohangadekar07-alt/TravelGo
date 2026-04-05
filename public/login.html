@@ -224,6 +224,49 @@
         .msg-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
         .msg-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
 
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .modal h2 { font-family: 'Outfit', sans-serif; margin-bottom: 10px; }
+        .modal p { color: var(--slate); font-size: 0.9rem; margin-bottom: 25px; }
+        .btn-cancel { background: #eee; color: #555; margin-top: 10px; }
+
+        .toast {
+            position: fixed;
+            top: 20px; right: -100%;
+            background: white; color: var(--dark);
+            padding: 16px 24px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 500; font-family: 'Inter', sans-serif;
+            z-index: 2000;
+            transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast.show { right: 20px; }
+        .toast-error { border-left-color: #ef4444; }
+        .toast-error i { color: #ef4444; }
+        .toast-success { border-left-color: #10b981; }
+        .toast-success i { color: #10b981; }
+
         @media (max-width: 480px) {
             body { padding: 15px; }
             .auth-card { padding: 30px 20px; border-radius: 20px; }
@@ -259,7 +302,7 @@
             <div class="form-group">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <label>Password</label>
-                    <a href="#" style="font-size: 0.8rem; color: var(--primary); text-decoration: none;">Forgot?</a>
+                    <a href="javascript:void(0)" onclick="openForgotModal()" style="font-size: 0.8rem; color: var(--primary); text-decoration: none;">Forgot?</a>
                 </div>
                 <div class="input-wrapper">
                     <input type="password" id="password" placeholder="••••••••" required autocomplete="off">
@@ -278,16 +321,70 @@
         </div>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="modal">
+        <div class="modal-content">
+            <h2>Forgot Password</h2>
+            <p id="forgotDesc">Enter your email to receive a 6-digit OTP.</p>
+            
+            <!-- Step 1: Request OTP -->
+            <form id="forgotFormStep1">
+                <div class="form-group" style="text-align: left;">
+                    <label>Email Address</label>
+                    <input type="email" id="forgotEmail" placeholder="your@email.com" required>
+                </div>
+                <button type="submit" class="btn-login" id="forgotSubmitStep1">
+                    <span>Send OTP</span>
+                </button>
+                <button type="button" class="btn-login btn-cancel" onclick="closeForgotModal()">Cancel</button>
+            </form>
+
+            <!-- Step 2: Verify OTP & New Password -->
+            <form id="forgotFormStep2" style="display: none;">
+                <div class="form-group" style="text-align: left;">
+                    <label>Enter 6-Digit OTP</label>
+                    <input type="text" id="forgotOtp" placeholder="XXXXXX" maxlength="6" required>
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label>New Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="forgotNewPassword" placeholder="••••••••" required autocomplete="off">
+                        <i class="far fa-eye toggle-password" id="toggleForgotNewPassword"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn-login" id="forgotSubmitStep2">
+                    <span>Reset Password</span>
+                </button>
+                <button type="button" class="btn-login btn-cancel" onclick="closeForgotModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Professional Toast Notification -->
+    <div id="toast" class="toast">
+        <i id="toastIcon" class="fas fa-check-circle"></i>
+        <span id="toastMsg">Message</span>
+    </div>
+
     <script>
         const msg = document.getElementById('msg');
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
+        const toggleForgotNewPassword = document.getElementById('toggleForgotNewPassword');
+        const forgotNewPasswordInput = document.getElementById('forgotNewPassword');
 
         togglePassword.onclick = () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
             togglePassword.classList.toggle('fa-eye');
             togglePassword.classList.toggle('fa-eye-slash');
+        };
+
+        toggleForgotNewPassword.onclick = () => {
+            const type = forgotNewPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            forgotNewPasswordInput.setAttribute('type', type);
+            toggleForgotNewPassword.classList.toggle('fa-eye');
+            toggleForgotNewPassword.classList.toggle('fa-eye-slash');
         };
 
         document.getElementById('loginForm').onsubmit = async (e) => {
@@ -332,11 +429,102 @@
                 msg.textContent = 'Connection error. Please try again.';
                 msg.className = 'msg-error';
                 msg.style.display = 'block';
-            } finally {
-                if (!localStorage.getItem('token')) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<span>Login</span> <i class="fas fa-sign-in-alt"></i>';
+            }
+        };
+
+        function openForgotModal() { 
+            document.getElementById('forgotModal').style.display = 'flex'; 
+            document.getElementById('forgotFormStep1').style.display = 'block';
+            document.getElementById('forgotFormStep2').style.display = 'none';
+            document.getElementById('forgotDesc').innerText = 'Enter your email to receive a 6-digit OTP.';
+        }
+        function closeForgotModal() { document.getElementById('forgotModal').style.display = 'none'; }
+
+        let resetEmail = '';
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMsg.textContent = message;
+            
+            if (isError) {
+                toast.classList.add('toast-error');
+                toast.classList.remove('toast-success');
+                toastIcon.className = 'fas fa-exclamation-circle';
+            } else {
+                toast.classList.add('toast-success');
+                toast.classList.remove('toast-error');
+                toastIcon.className = 'fas fa-check-circle';
+            }
+            
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3500);
+        }
+
+        document.getElementById('forgotFormStep1').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('forgotSubmitStep1');
+            resetEmail = document.getElementById('forgotEmail').value;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: resetEmail })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('OTP sent to your email successfully!');
+                    document.getElementById('forgotFormStep1').style.display = 'none';
+                    document.getElementById('forgotFormStep2').style.display = 'block';
+                    document.getElementById('forgotDesc').innerText = 'Enter the OTP and your new password.';
+                } else {
+                    showToast(data.message, true);
                 }
+            } catch (err) {
+                showToast('Connection error. Try again.', true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Send OTP</span>';
+            }
+        };
+
+        document.getElementById('forgotFormStep2').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('forgotSubmitStep2');
+            const otp = document.getElementById('forgotOtp').value;
+            const password = document.getElementById('forgotNewPassword').value;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+
+            try {
+                const res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: resetEmail, otp, password })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Password reset successfully! You can now login.');
+                    closeForgotModal();
+                    document.getElementById('forgotFormStep2').reset();
+                    document.getElementById('forgotFormStep1').reset();
+                } else {
+                    showToast(data.message, true);
+                }
+            } catch (err) {
+                showToast('Connection error. Try again.', true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Reset Password</span>';
             }
         };
     </script>

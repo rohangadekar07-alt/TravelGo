@@ -298,8 +298,8 @@
                         <strong>Platform Fees & Taxes</strong><br>
                         <span style="font-size: 0.8rem; color: var(--slate);">Standard platform handling</span>
                     </td>
-                    <td>Included</td>
-                    <td class="price-col">Rs 0.00</td>
+                    <td>Added</td>
+                    <td class="price-col" id="receiptPlatformFee">Rs 0.00</td>
                 </tr>
             </tbody>
         </table>
@@ -311,8 +311,8 @@
                     <span id="baseAmount">Rs --</span>
                 </div>
                 <div class="total-row">
-                    <span>GST (0%)</span>
-                    <span>Rs 0.00</span>
+                    <span>Platform Fee</span>
+                    <span id="platformAmount">Rs 0.00</span>
                 </div>
                 <div class="total-row grand">
                     <span>Total Paid</span>
@@ -398,9 +398,16 @@
 
                 // Price Processing
                 const price = booking.price || 'Rs 0';
-                document.getElementById('subtotalPrice').textContent = price;
-                document.getElementById('totalPrice1').textContent = price;
-                document.getElementById('baseAmount').textContent = price;
+                
+                let basePriceVal = booking.basePrice || parseInt(price.replace(/[^0-9]/g, '')) || 0;
+                let platformFeeVal = booking.platformFee || 0;
+
+                // For legacy compatibility, if platformFee is 0 but price is set, base = price
+                document.getElementById('subtotalPrice').textContent = "Rs " + basePriceVal.toLocaleString();
+                document.getElementById('totalPrice1').textContent = "Rs " + basePriceVal.toLocaleString();
+                document.getElementById('receiptPlatformFee').textContent = "Rs " + platformFeeVal.toLocaleString();
+                document.getElementById('baseAmount').textContent = "Rs " + basePriceVal.toLocaleString();
+                document.getElementById('platformAmount').textContent = "Rs " + platformFeeVal.toLocaleString();
                 document.getElementById('finalTotal').textContent = price;
 
                 // ID

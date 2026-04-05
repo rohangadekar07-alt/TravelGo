@@ -643,12 +643,36 @@
         if(!bookingData) {
             window.location.href = '/';
         } else {
-            // Update UI with booking data
+            // Setup base details
             document.getElementById('summPackage').textContent = bookingData.travelSpot;
-            document.getElementById('summAmount').textContent = bookingData.price;
             document.getElementById('summID').textContent = "Booking ID: " + bookingId;
             document.getElementById('summName').textContent = bookingData.fullName || bookingData.name || "Guest";
             document.getElementById('summDate').textContent = bookingData.travelDate;
+
+            // Fetch platform fee and calculate total
+            let basePrice = parseInt(bookingData.price.replace(/[^0-9]/g, '')) || 0;
+            let platformFee = 0;
+            
+            fetch('/api/settings/platform-fee')
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success && data.platformFee) {
+                        platformFee = Number(data.platformFee);
+                    }
+                    finalizePricing(basePrice, platformFee);
+                })
+                .catch(err => {
+                    console.error("Could not load platform fee, using 0.");
+                    finalizePricing(basePrice, 0);
+                });
+                
+            function finalizePricing(baseP, fee) {
+                const total = baseP + fee;
+                bookingData.basePrice = baseP;
+                bookingData.platformFee = fee;
+                bookingData.price = "Rs " + total.toLocaleString(); // Format total back as string
+                document.getElementById('summAmount').textContent = bookingData.price;
+            }
             
             // Set preview image (mapping based on spot names)
             const spotImg = bookingData.travelSpot.toLowerCase().split(',')[0].trim();
