@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary: #3a86ff;
@@ -57,6 +59,27 @@
 
         .checkout-nav .logo span {
             color: var(--primary);
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .btn-back-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: 0.3s;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+        }
+        .btn-back-nav:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: #f0f7ff;
+            transform: translateX(-3px);
         }
 
         .secure-badge {
@@ -250,8 +273,8 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             font-size: 0.95rem;
             font-weight: 600;
-            color: var(--secondary);
-            border: 1px solid #ffe4e6;
+            color: var(--primary);
+            border: 1px solid #e2e8f0;
         }
 
         .info-cards {
@@ -506,7 +529,13 @@
 
     <nav class="checkout-nav">
         <div class="nav-container">
-            <a href="/" class="logo">Travel<span>GO</span></a>
+            <div class="nav-left">
+                <a href="/payment-options.html" class="btn-back-nav">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </a>
+                <a href="/" class="logo">Travel<span>GO</span></a>
+            </div>
             <div class="secure-badge">
                 <i class="fas fa-lock"></i>
                 Secure Checkout
@@ -537,27 +566,28 @@
             <!-- Payment Section -->
             <div class="payment-box">
                 <div class="payment-header">
-                    <h2>Select Payment Method</h2>
-                    <p>Complete your booking by scanning the QR code below</p>
+                    <h2>Secure Online Payment</h2>
+                    <p>Complete your booking safely using UPI, Cards, or Netbanking</p>
                 </div>
                 <div class="payment-body">
-                    <div class="payment-method-card">
+                    <div class="payment-method-card" style="border-color: #e2e8f0; background: #fff;">
                         <div class="method-title">
                             <div class="method-info">
-                                <i class="fas fa-qrcode"></i>
-                                <span>UPI Payment (Google Pay / PhonePe)</span>
+                                <i class="fas fa-shield-check" style="color: #10b981;"></i>
+                                <span style="font-size: 1rem;">Verified Razorpay Secure Gateway</span>
                             </div>
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo.png/640px-UPI-Logo.png" alt="UPI" height="20">
                         </div>
                         
-                        <div class="qr-area">
-                            <div class="qr-wrapper">
-                                <img src="/images/upi-qr.png" alt="Scan to Pay">
+                        <div class="qr-area" style="padding: 20px 0;">
+                            <div style="text-align: center; color: #64748b; font-size: 0.9rem;">
+                                <img src="https://razorpay.com/assets/razorpay-glyph.svg" alt="Razorpay" style="width: 50px; margin-bottom: 10px; opacity: 0.8;">
+                                <p>Click the button below to open the secure payment portal</p>
                             </div>
-                            
-                            <div class="countdown-timer" id="statusMsg">
-                                <i class="fas fa-spinner fa-spin"></i> Waiting for payment... (<span id="countdown">30</span>s)
-                            </div>
+                        </div>
+
+                        <div class="countdown-timer">
+                            <i class="fas fa-lock"></i> SSL Encrypted & 100% Secure
                         </div>
                     </div>
 
@@ -608,6 +638,14 @@
                                 <span class="detail-label">Status</span>
                                 <span class="detail-value" style="color: #f59e0b;">Awaiting Payment</span>
                             </div>
+                            <div class="detail-item" style="border-top: 1px dashed #e2e8f0; margin-top: 8px; padding-top: 8px;">
+                                <span class="detail-label">Base Price</span>
+                                <span class="detail-value" id="summBasePrice">Rs 1</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Platform Fee</span>
+                                <span class="detail-value" id="summPlatformFee">Rs 0</span>
+                            </div>
                         </div>
                     </div>
 
@@ -618,8 +656,8 @@
                             <span class="total-price" id="summAmount">Rs 0</span>
                         </div>
 
-                        <button class="btn-confirm" id="btnConfirm" disabled>
-                            <i class="fas fa-check-circle"></i> Confirm Booking
+                        <button class="btn-confirm" id="btnConfirm">
+                            <i class="fas fa-credit-card"></i> Pay & Confirm Booking
                         </button>
                         
                         <button class="btn-back" onclick="window.location.href='/payment-options.html'">← Back to Payment Options</button>
@@ -651,6 +689,7 @@
 
             // Fetch platform fee and calculate total
             let basePrice = parseInt(bookingData.price.replace(/[^0-9]/g, '')) || 0;
+            if (bookingData.basePrice) { basePrice = bookingData.basePrice; } // Use saved base price
             let platformFee = 0;
             
             fetch('/api/settings/platform-fee')
@@ -670,7 +709,9 @@
                 const total = baseP + fee;
                 bookingData.basePrice = baseP;
                 bookingData.platformFee = fee;
-                bookingData.price = "Rs " + total.toLocaleString(); // Format total back as string
+                bookingData.price = "Rs " + total.toLocaleString(); 
+                document.getElementById('summBasePrice').textContent = "Rs " + baseP.toLocaleString();
+                document.getElementById('summPlatformFee').textContent = "Rs " + fee.toLocaleString();
                 document.getElementById('summAmount').textContent = bookingData.price;
             }
             
@@ -683,64 +724,119 @@
             }
         }
 
-        // Timer Logic
-        let timeLeft = 30;
-        const countdownEl = document.getElementById('countdown');
+        // UI Logic (Timer removed)
         const btnConfirm = document.getElementById('btnConfirm');
-        const statusMsg = document.getElementById('statusMsg');
 
-        const timer = setInterval(() => {
-            timeLeft--;
-            if (countdownEl) countdownEl.textContent = timeLeft;
-            
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                btnConfirm.disabled = false;
-                statusMsg.innerHTML = '<i class="fas fa-check-circle" style="color: #10b981;"></i> Payment Received! Ready to confirm.';
-                statusMsg.style.color = "#10b981";
-                statusMsg.style.borderColor = "#bbf7d0";
-                statusMsg.style.backgroundColor = "#f0fdf4";
-            }
-        }, 1000);
-
-        // Submit Logic
+        // Submit Logic (Razorpay Integration)
         btnConfirm.onclick = async function() {
-            this.disabled = true;
-            document.getElementById('loader').style.display = 'flex';
+            try {
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Gateway...';
+                
+                // 1. Create Order on Backend
+                const orderRes = await fetch('/api/payments/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: document.getElementById('summAmount').textContent,
+                        bookingData: bookingData
+                    })
+                });
 
-            setTimeout(async () => {
-                try {
-                    const response = await fetch('/api/bookings', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : ''
-                        },
-                        body: JSON.stringify({
-                            ...bookingData,
-                            paymentStatus: 'Paid',
-                            bookingId: bookingId
-                        })
-                    });
-
-                    if (response.ok) {
-                        sessionStorage.setItem('confirmedBooking', JSON.stringify({
-                            ...bookingData,
-                            bookingId: bookingId
-                        }));
-                        window.location.href = '/success.html';
-                    } else {
-                        alert('Something went wrong. Please try again.');
-                        document.getElementById('loader').style.display = 'none';
-                        this.disabled = false;
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Connection failed.');
-                    document.getElementById('loader').style.display = 'none';
-                    this.disabled = false;
+                const orderData = await orderRes.json();
+                
+                if (!orderData.success) {
+                    throw new Error(orderData.message || 'Failed to initialize payment gateway');
                 }
-            }, 2000);
+
+                // 2. Open Razorpay Checkou Popup
+                const options = {
+                    key: orderData.keyId,
+                    amount: orderData.amount,
+                    currency: "INR",
+                    name: "TravelGO",
+                    description: `Booking for ${bookingData.travelSpot}`,
+                    image: "/favicon.ico",
+                    order_id: orderData.orderId,
+                    handler: async function (response) {
+                        // This executes on successful payment (popup closes)
+                        document.getElementById('loader').style.display = 'flex';
+                        
+                        try {
+                            const verifyRes = await fetch('/api/payments/verify-payment', {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'Authorization': localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : ''
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    bookingData: bookingData,
+                                    bookingCode: bookingId
+                                })
+                            });
+
+                            const verifyData = await verifyRes.json();
+
+                            if (verifyData.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Payment Successful!',
+                                    text: 'Your trip has been booked. Redirecting to success page...',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                                
+                                sessionStorage.setItem('confirmedBooking', JSON.stringify({
+                                    ...bookingData,
+                                    bookingId: bookingId
+                                }));
+                                
+                                setTimeout(() => {
+                                    window.location.href = '/success.html';
+                                }, 3000);
+                            } else {
+                                throw new Error(verifyData.message || 'Payment verification failed');
+                            }
+                        } catch (err) {
+                            console.error('Verification Error:', err);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Payment Verification Failed',
+                                text: err.message
+                            });
+                            document.getElementById('loader').style.display = 'none';
+                        }
+                    },
+                    prefill: {
+                        name: bookingData.fullName || bookingData.name,
+                        email: bookingData.email,
+                        contact: bookingData.mobileNumber
+                    },
+                    theme: { color: "#3a86ff" },
+                    modal: {
+                        ondismiss: function() {
+                            btnConfirm.disabled = false;
+                            btnConfirm.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+                        }
+                    }
+                };
+
+                const rzp1 = new Razorpay(options);
+                rzp1.open();
+
+            } catch (error) {
+                console.error('Payment Initialization Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: error.message || 'Could not connect to payment server.'
+                });
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+            }
         };
     </script>
 </body>

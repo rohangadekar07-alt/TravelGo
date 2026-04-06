@@ -42,9 +42,27 @@
             z-index: 10;
         }
         .logo { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--dark); text-decoration: none; }
-        .logo span { color: var(--primary); }
-        .secure { display: flex; align-items: center; gap: 7px; font-size: 0.82rem; color: #64748b; font-weight: 500; }
         .secure i { color: var(--green); }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .btn-back-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: 0.3s;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+        }
+        .btn-back-nav:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: #f0f7ff;
+            transform: translateX(-3px);
+        }
 
         /* ── Steps ── */
         .steps-bar {
@@ -338,7 +356,13 @@
 
     <!-- Navbar -->
     <nav class="nav">
-        <a href="/" class="logo">Travel<span>GO</span></a>
+        <div class="nav-left">
+            <a href="/" class="btn-back-nav">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back</span>
+            </a>
+            <a href="/" class="logo">Travel<span>GO</span></a>
+        </div>
         <div class="secure"><i class="fas fa-lock"></i><span>Secure Checkout</span></div>
     </nav>
 
@@ -446,6 +470,14 @@
                         <span class="label">Status</span>
                         <span class="value" style="color: #f59e0b;">⏳ Awaiting Payment</span>
                     </div>
+                    <div class="detail-row" style="border-top: 1px dashed #e2e8f0; margin-top: 5px; padding-top: 12px;">
+                        <span class="label">Base Price</span>
+                        <span class="value" id="summaryBasePrice">Rs 1</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Platform Fee</span>
+                        <span class="value" id="summaryPlatformFee">Rs 0</span>
+                    </div>
 
                     <div class="amount-row">
                         <span class="amount-label">Amount to Pay</span>
@@ -511,9 +543,11 @@
                 const total = baseP + fee;
                 booking.basePrice = baseP;
                 booking.platformFee = fee;
-                booking.price = "Rs " + total.toLocaleString(); // Total string
+                booking.price = "Rs " + total.toLocaleString(); 
+                document.getElementById('summaryBasePrice').textContent = "Rs " + baseP.toLocaleString();
+                document.getElementById('summaryPlatformFee').textContent = "Rs " + fee.toLocaleString();
                 document.getElementById('summaryPrice').textContent = booking.price;
-                sessionStorage.setItem('pendingBooking', JSON.stringify(booking)); // Save back
+                sessionStorage.setItem('pendingBooking', JSON.stringify(booking)); 
             }
         }
 

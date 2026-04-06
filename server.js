@@ -4,18 +4,29 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const jwt = require('jsonwebtoken'); // Added for optional auth in existing routes
+const jwt = require('jsonwebtoken');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Initialize Razorpay
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.get('/api/config', (req, res) => {
-    res.json({ googleMapsKey: process.env.GOOGLE_MAPS_KEY || null });
+    res.json({ 
+        googleMapsKey: process.env.GOOGLE_MAPS_KEY || null,
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID || null
+    });
 });
 
 app.use(express.static('public'));
@@ -130,6 +141,97 @@ app.post('/api/bookings', async (req, res) => {
         res.status(201).json({ success: true, message: 'Booking submitted successfully', bookingId: newBooking._id });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Database error', error: err.message });
+    }
+});
+
+// --- RAZORPAY INTEGRATION ---
+
+// 3. Create Razorpay Order
+app.post('/api/payments/create-order', async (req, res) => {
+    try {
+        const { amount, bookingData } = req.body;
+        
+        // Amount must be in paisa! So (Rs * 100)
+        // Ensure total amount is used correctly
+        const cleanAmount = parseInt(amount.replace(/[^0-9]/g, ''));
+        
+        const options = {
+            amount: cleanAmount * 100, // paisa
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`
+        };
+
+        const order = await razorpay.orders.create(options);
+        
+        if (!order) {
+            return res.status(500).json({ success: false, message: 'Razorpay order creation failed' });
+        }
+
+        res.json({
+            success: true,
+            orderId: order.id,
+            amount: order.amount,
+            keyId: process.env.RAZORPAY_KEY_ID
+        });
+    } catch (error) {
+        console.error('Create order error:', error);
+        res.status(500).json({ success: false, message: 'Failed to create order', error: error.message });
+    }
+});
+
+// 4. Verify Payment Signature
+app.post('/api/payments/verify-payment', async (req, res) => {
+    try {
+        const { 
+            razorpay_order_id, 
+            razorpay_payment_id, 
+            razorpay_signature,
+            bookingData,
+            bookingCode
+        } = req.body;
+
+        // Verify signature
+        const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+        hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+        const generated_signature = hmac.digest('hex');
+
+        if (generated_signature === razorpay_signature) {
+            // Signature matched - payment success
+            
+            // 1. Create or update booking in DB
+            const newBooking = new Booking({
+                ...bookingData,
+                paymentStatus: 'Paid',
+                paymentMethod: 'Online',
+                bookingId: bookingCode,
+                razorpayOrderId: razorpay_order_id,
+                razorpayPaymentId: razorpay_payment_id,
+                razorpaySignature: razorpay_signature
+            });
+
+            // If userId is provided (token decode)
+            const token = req.header('Authorization')?.replace('Bearer ', '');
+            if (token) {
+                try {
+                    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'travelgo_super_secret_key_2026');
+                    newBooking.userId = decoded.id;
+                } catch (e) {}
+            }
+
+            await newBooking.save();
+
+            res.json({ 
+                success: true, 
+                message: 'Payment verified and booking confirmed!',
+                bookingId: newBooking._id 
+            });
+        } else {
+            // Signature mismatch
+            res.status(400).json({ success: false, message: 'Payment verification failed (Signature mismatch)' });
+        }
+    } catch (error) {
+        console.error('Verify payment error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
     }
 });
 
@@ -250,7 +352,7 @@ app.get('/api/settings/platform-fee', async (req, res) => {
              setting = new Setting({ key: 'platformFee', value: 0 });
              await setting.save();
         }
-        res.json({ success: true, platformFee: setting.value });
+        res.json({ success: true, platformFee: 9 });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Server error', error: err.message });
     }

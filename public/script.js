@@ -217,22 +217,22 @@ function filterDestinations(category) {
 
 // Package Data
 const packages = {
-    'Bali': { price: 'Rs 45,000', duration: '5 Days / 4 Nights', img: 'images/bali.png' },
-    'Switzerland': { price: 'Rs 1,65,000', duration: '7 Days / 6 Nights', img: 'images/switzerland.png' },
-    'Maldives': { price: 'Rs 75,000', duration: '4 Days / 3 Nights', img: 'images/maldives.png' },
-    'Japan': { price: 'Rs 1,15,000', duration: '6 Days / 5 Nights', img: 'images/japan.png' },
-    'Dubai': { price: 'Rs 55,000', duration: '4 Days / 3 Nights', img: 'images/dubai.png' },
-    'Paris': { price: 'Rs 1,20,000', duration: '5 Days / 4 Nights', img: 'images/paris.png' },
-    'London': { price: 'Rs 95,000', duration: '5 Days / 4 Nights', img: 'images/london.png' },
+    'Bali': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/bali.png' },
+    'Switzerland': { price: 'Rs 1', duration: '7 Days / 6 Nights', img: 'images/switzerland.png' },
+    'Maldives': { price: 'Rs 1', duration: '4 Days / 3 Nights', img: 'images/maldives.png' },
+    'Japan': { price: 'Rs 1', duration: '6 Days / 5 Nights', img: 'images/japan.png' },
+    'Dubai': { price: 'Rs 1', duration: '4 Days / 3 Nights', img: 'images/dubai.png' },
+    'Paris': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/paris.png' },
+    'London': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/london.png' },
     // Indian Spots
-    'Manali': { price: 'Rs 12,000', duration: '4 Days / 3 Nights', img: 'images/manali.png' },
-    'Goa': { price: 'Rs 8,500', duration: '3 Days / 2 Nights', img: 'images/goa.png' },
-    'Rajasthan': { price: 'Rs 15,500', duration: '5 Days / 4 Nights', img: 'images/rajasthan.png' },
-    'Kerala': { price: 'Rs 13,000', duration: '4 Days / 3 Nights', img: 'images/kerala.png' },
-    'Kashmir': { price: 'Rs 22,500', duration: '6 Days / 5 Nights', img: 'images/kashmir.png' },
-    'Ladakh': { price: 'Rs 28,000', duration: '7 Days / 6 Nights', img: 'images/ladakh.png' },
-    'Andaman': { price: 'Rs 35,000', duration: '5 Days / 4 Nights', img: 'images/andaman.png' },
-    'Hampi': { price: 'Rs 7,500', duration: '3 Days / 2 Nights', img: 'images/hampi.png' }
+    'Manali': { price: 'Rs 1', duration: '4 Days / 3 Nights', img: 'images/manali.png' },
+    'Goa': { price: 'Rs 1', duration: '3 Days / 2 Nights', img: 'images/goa.png' },
+    'Rajasthan': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/rajasthan.png' },
+    'Kerala': { price: 'Rs 1', duration: '4 Days / 3 Nights', img: 'images/kerala.png' },
+    'Kashmir': { price: 'Rs 1', duration: '6 Days / 5 Nights', img: 'images/kashmir.png' },
+    'Ladakh': { price: 'Rs 1', duration: '7 Days / 6 Nights', img: 'images/ladakh.png' },
+    'Andaman': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/andaman.png' },
+    'Hampi': { price: 'Rs 1', duration: '3 Days / 2 Nights', img: 'images/hampi.png' }
 };
 
 let currentSpot = '';

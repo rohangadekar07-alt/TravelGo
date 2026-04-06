@@ -12,9 +12,12 @@ const bookingSchema = new mongoose.Schema({
     basePrice: { type: Number },
     platformFee: { type: Number, default: 0 },
     duration: { type: String, required: true },
-    paymentStatus: { type: String, default: 'Paid' },
+    paymentStatus: { type: String, default: 'Pending' }, 
     paymentMethod: { type: String, default: 'Online' },
     bookingId: { type: String },
+    razorpayOrderId: { type: String },
+    razorpayPaymentId: { type: String },
+    razorpaySignature: { type: String },
     submittedAt: { type: Date, default: Date.now }
 });
 

@@ -429,6 +429,11 @@
                 msg.textContent = 'Connection error. Please try again.';
                 msg.className = 'msg-error';
                 msg.style.display = 'block';
+            } finally {
+                if (!window.location.href.includes('?success=true')) { // Don't reset if redirecting
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Login</span><i class="fas fa-sign-in-alt"></i>';
+                }
             }
         };
 
