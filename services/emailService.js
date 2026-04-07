@@ -20,8 +20,8 @@ transporter.verify(function (error, success) {
     }
 });
 
-const sendVerificationEmail = async (email, token) => {
-    const url = `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/verify?token=${token}`;
+const sendVerificationEmail = async (email, token, baseUrl = process.env.BASE_URL || 'http://localhost:5000') => {
+    const url = `${baseUrl}/api/auth/verify?token=${token}`;
     
     const mailOptions = {
         from: `"TravelGO" <${process.env.EMAIL_USER}>`,
@@ -69,8 +69,8 @@ const sendOtpEmail = async (email, otp) => {
     return transporter.sendMail(mailOptions);
 };
 
-const sendWelcomeEmail = async (email, name) => {
-    const loginUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/login.html`;
+const sendWelcomeEmail = async (email, name, baseUrl = process.env.BASE_URL || 'http://localhost:5000') => {
+    const loginUrl = `${baseUrl}/login.html`;
     
     const mailOptions = {
         from: `"TravelGO" <${process.env.EMAIL_USER}>`,
@@ -95,7 +95,7 @@ const sendWelcomeEmail = async (email, name) => {
     return transporter.sendMail(mailOptions);
 };
 
-const sendResetOtpEmail = async (email, otp) => {
+const sendResetOtpEmail = async (email, otp, baseUrl = process.env.BASE_URL || 'http://localhost:5000') => {
     const mailOptions = {
         from: `"TravelGO" <${process.env.EMAIL_USER}>`,
         to: email,

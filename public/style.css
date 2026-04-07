@@ -1209,6 +1209,20 @@ section {
     gap: 15px;
     margin-bottom: 15px;
 }
+.full-width {
+    grid-column: 1 / -1;
+}
+.modal-name-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+}
+@media (max-width: 600px) {
+    .modal-name-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
 .input-group label {
     display: flex;

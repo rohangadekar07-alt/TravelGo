@@ -22,7 +22,7 @@ exports.sendOtp = async (req, res) => {
         await OTP.findOneAndUpdate(
             { email },
             { otp, createdAt: Date.now() },
-            { upsert: true, new: true }
+            { upsert: true, returnDocument: 'after' }
         );
 
         // Send OTP via Email
@@ -72,7 +72,11 @@ exports.register = async (req, res) => {
         await OTP.deleteOne({ email });
 
         // Send Welcome Email in background to keep response fast
-        sendWelcomeEmail(email, fullName).catch(err => 
+        const baseUrl = (process.env.BASE_URL && !process.env.BASE_URL.includes('localhost')) 
+            ? process.env.BASE_URL 
+            : `${req.protocol}://${req.get('host')}`;
+        
+        sendWelcomeEmail(email, fullName, baseUrl).catch(err => 
             console.error('Background Welcome Email Error:', err)
         );
 
@@ -175,7 +179,11 @@ exports.forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 600000; // 10 minutes
         await user.save();
 
-        await sendResetOtpEmail(email, resetOtp);
+        const baseUrl = (process.env.BASE_URL && !process.env.BASE_URL.includes('localhost'))
+            ? process.env.BASE_URL
+            : `${req.protocol}://${req.get('host')}`;
+            
+        await sendResetOtpEmail(email, resetOtp, baseUrl);
         res.json({ success: true, message: 'Password reset OTP sent to your email' });
     } catch (err) {
         console.error(err);

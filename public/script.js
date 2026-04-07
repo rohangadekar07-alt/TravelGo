@@ -1,3 +1,7 @@
+// Global user data to maintain state across interactions
+let currentUserEmail = ''; 
+let currentUserFullName = '';
+
 // Auth UI Toggle and Date Restriction
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
@@ -8,26 +12,42 @@ document.addEventListener('DOMContentLoaded', () => {
         if (authLinks) authLinks.style.display = 'none';
         if (userProfile) userProfile.style.display = 'block';
         
-        // Fetch profile to see if there's an image
+        // Fetch profile to get real user data
         fetch('/api/user/profile', {
             headers: { 'Authorization': `Bearer ${token}` }
         })
         .then(res => res.json())
         .then(data => {
-            if (data.success && data.user.profileImage) {
-                const navImg = document.getElementById('navUserImage');
-                const defaultIcon = document.getElementById('navDefaultAvatar');
-                if (navImg && defaultIcon) {
-                    navImg.src = data.user.profileImage;
-                    navImg.style.display = 'block';
-                    defaultIcon.style.display = 'none';
+            if (data.success) {
+                currentUserEmail = data.user.email;
+                currentUserFullName = data.user.fullName;
+                
+                if (data.user.profileImage) {
+                    const navImg = document.getElementById('navUserImage');
+                    const defaultIcon = document.getElementById('navDefaultAvatar');
+                    if (navImg && defaultIcon) {
+                        navImg.src = data.user.profileImage;
+                        navImg.style.display = 'block';
+                        defaultIcon.style.display = 'none';
+                    }
                 }
             }
         }).catch(err => console.error('Profile fetch failed', err));
 
     } else {
         if (authLinks) authLinks.style.display = 'flex';
-        if (userProfile) userProfile.style.display = 'none';
+        if (userProfile) userProfile.style.display = 'block'; // Show icon for guests too
+    }
+
+    // Redirect guest users from profile icon to register form
+    const profileCircle = document.getElementById('navProfileCircle');
+    if (profileCircle) {
+        profileCircle.addEventListener('click', (e) => {
+            if (!localStorage.getItem('token')) {
+                e.preventDefault();
+                window.location.href = '/register.html';
+            }
+        });
     }
 
     // Set dynamic date restrictions (Today as minimum)
@@ -256,6 +276,10 @@ function bookSpot(spotName) {
     document.getElementById('modalDuration').textContent = `${pkg.duration} · All Inclusive`;
     document.getElementById('modalPrice').textContent = pkg.price;
     document.getElementById('modalImg').src = pkg.img;
+
+    // Ensure form is empty
+    const modalForm = document.getElementById('modalInquiryForm');
+    if (modalForm) modalForm.reset();
     
     // Always use 'flex' - overlay uses flexbox for centering (desktop) and full-screen (mobile)
     document.getElementById('bookingModal').style.display = 'flex';
@@ -281,10 +305,20 @@ if (modalForm) {
 
         const pkg = packages[currentSpot];
         const selectedMode = document.querySelector('input[name="mode"]:checked').value;
+        const enteredEmail = document.getElementById('modalEmail').value;
+
+        // Verify if booking email matches registered account email
+        if (currentUserEmail && enteredEmail.toLowerCase() !== currentUserEmail.toLowerCase()) {
+            showToast('Email mismatch: Please enter your registered account email to proceed.', 'error');
+            submitBtn.innerHTML = originalBtnContent;
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            return;
+        }
 
         const bookingData = {
-            fullName: document.getElementById('modalName').value,
-            email: document.getElementById('modalEmail').value,
+            fullName: `${document.getElementById('modalFirstName').value} ${document.getElementById('modalMiddleName').value} ${document.getElementById('modalLastName').value}`.trim(),
+            email: enteredEmail,
             mobileNumber: document.getElementById('modalPhone').value,
             travelDate: document.getElementById('modalDate').value,
             travelSpot: currentSpot,

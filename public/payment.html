@@ -488,39 +488,83 @@
             .checkout-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
-            }
-            .summary-box {
-                position: static;
-                order: -1; /* Show summary at top on mobile */
+                overflow: visible;
             }
             .checkout-wrapper {
-                margin: 20px auto;
+                margin: 0;
+                padding: 15px;
+                overflow: visible;
+                display: block; /* Disable flex column to allow natural flow */
+            }
+            body {
+                overflow-y: auto; /* Allow body to scroll on mobile */
+                height: auto;
+            }
+            .summary-box {
+                order: -1; 
+                margin-bottom: 20px;
+            }
+            .summary-card {
+                max-height: none;
+                overflow: visible;
             }
             .stepper {
-                transform: scale(0.85);
-                margin-bottom: 25px;
+                display: none; /* Already hidden on smaller, but hide at 900px to save space */
+            }
+            .payment-box {
+                animation: slideInUp 0.6s ease-out;
+            }
+            @keyframes slideInUp {
+                from { transform: translateY(30px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
             }
         }
-
+    
         @media (max-width: 600px) {
-            .info-cards {
-                grid-template-columns: 1fr;
+            .nav-container {
+                padding: 0 15px;
             }
-            .stepper {
-                display: none;
+            .btn-back-nav span {
+                display: none; /* Hide text, keep icon */
             }
-            .payment-header, .payment-body {
-                padding: 20px;
-            }
-            .qr-wrapper img {
-                width: 150px;
-                height: 150px;
+            .btn-back-nav {
+                padding: 8px;
             }
             .checkout-nav .logo {
-                font-size: 1.2rem;
+                font-size: 1.1rem;
+            }
+            .payment-header {
+                padding: 18px 20px;
+            }
+            .payment-header h2 {
+                font-size: 1.1rem;
+            }
+            .payment-body {
+                padding: 15px;
+                gap: 12px;
+            }
+            .qr-wrapper img {
+                width: 140px;
+                height: 140px;
             }
             .secure-badge span {
                 display: none;
+            }
+            .total-price {
+                font-size: 1.4rem;
+            }
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+            .info-card {
+                padding: 12px;
+            }
+            .total-section {
+                padding-top: 15px;
+            }
+            .btn-confirm {
+                padding: 14px;
+                font-size: 1rem;
             }
         }
     </style>

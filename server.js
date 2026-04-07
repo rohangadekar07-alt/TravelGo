@@ -11,6 +11,7 @@ const crypto = require('crypto');
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (important for Vercel/Render https detection)
 const PORT = process.env.PORT || 5000;
 
 // Initialize Razorpay
@@ -68,6 +69,7 @@ mongoose.connection.on('error', err => {
 const Inquiry = require('./models/Inquiry');
 const Booking = require('./models/Booking');
 const User = require('./models/User');
+const OTP = require('./models/OTP');
 const Setting = require('./models/Setting');
 
 // Routes
@@ -206,7 +208,8 @@ app.post('/api/payments/verify-payment', async (req, res) => {
                 bookingId: bookingCode,
                 razorpayOrderId: razorpay_order_id,
                 razorpayPaymentId: razorpay_payment_id,
-                razorpaySignature: razorpay_signature
+                razorpaySignature: razorpay_signature,
+                confirmedAt: new Date()
             });
 
             // If userId is provided (token decode)
@@ -240,8 +243,8 @@ app.patch('/api/bookings/:id/confirm-cash', async (req, res) => {
     try {
         const booking = await Booking.findByIdAndUpdate(
             req.params.id,
-            { paymentStatus: 'Cash Confirmed' },
-            { new: true }
+            { paymentStatus: 'Cash Confirmed', confirmedAt: new Date() },
+            { returnDocument: 'after' }
         );
         if (!booking) {
             console.log(`[Confirm Error] Booking not found: ${req.params.id}`);
@@ -261,7 +264,7 @@ app.patch('/api/bookings/:id/cancel', async (req, res) => {
         const booking = await Booking.findByIdAndUpdate(
             req.params.id,
             { paymentStatus: 'Cancelled' },
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!booking) {
             return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -333,7 +336,9 @@ app.delete('/api/admin/clear-data', async (req, res) => {
     try {
         await Inquiry.deleteMany({});
         await Booking.deleteMany({});
-        res.json({ success: true, message: 'All inquiries and bookings have been cleared.' });
+        await User.deleteMany({});
+        await OTP.deleteMany({});
+        res.json({ success: true, message: 'All inquiries, bookings, users, and OTPs have been cleared.' });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error clearing data', error: err.message });
     }

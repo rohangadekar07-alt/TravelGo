@@ -42,6 +42,7 @@
             z-index: 10;
         }
         .logo { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--dark); text-decoration: none; }
+        .logo span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .secure i { color: var(--green); }
         .nav-left { display: flex; align-items: center; gap: 20px; }
         .btn-back-nav {
@@ -334,21 +335,27 @@
         }
 
         /* ── Responsive ── */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             body { overflow-y: auto; height: auto; }
-            .main { padding: 15px; align-items: flex-start; overflow: visible; }
-            .page-grid { grid-template-columns: 1fr; max-height: none; height: auto; }
+            .nav { padding: 12px 20px; }
+            .steps-bar { display: none; }
+            .main { padding: 24px 15px; align-items: flex-start; overflow: visible; }
+            .page-grid { grid-template-columns: 1fr; max-height: none; height: auto; gap: 20px; }
             .summary-panel { order: -1; }
-            .options-body { overflow-y: visible; }
+            .options-body { overflow-y: visible; padding: 20px 24px; }
+            .options-header { padding: 20px 24px; }
+            .proceed-btn { padding: 20px 24px; }
         }
-        @media (max-width: 480px) {
-            .nav { padding: 12px 16px; }
-            .logo { font-size: 1.2rem; }
+        @media (max-width: 600px) {
+            .btn-back-nav span { display: none; }
+            .btn-back-nav { padding: 8px; }
+            .logo { font-size: 1.15rem; }
             .secure span { display: none; }
-            .main { padding: 12px; }
-            .options-header, .options-body, .proceed-btn { padding-left: 16px; padding-right: 16px; }
-            .method-card { padding: 16px; gap: 14px; }
-            .method-icon { width: 48px; height: 48px; font-size: 1.2rem; border-radius: 12px; }
+            .amount-value { font-size: 1.4rem; }
+            .method-icon { width: 45px; height: 45px; font-size: 1.1rem; }
+            .method-card { padding: 15px; border-radius: 14px; }
+            .summary-body, .summary-header { padding: 18px; }
+            .amount-row { padding: 15px; }
         }
     </style>
 </head>

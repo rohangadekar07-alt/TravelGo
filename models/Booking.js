@@ -18,7 +18,8 @@ const bookingSchema = new mongoose.Schema({
     razorpayOrderId: { type: String },
     razorpayPaymentId: { type: String },
     razorpaySignature: { type: String },
-    submittedAt: { type: Date, default: Date.now }
+    submittedAt: { type: Date, default: Date.now },
+    confirmedAt: { type: Date }
 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

@@ -501,7 +501,7 @@
                         </div>
                         <div class="input-group">
                             <label for="mobileNumber">Mobile Number</label>
-                            <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="10-digit number" pattern="[0-9]{10}" title="Please enter a 10-digit mobile number" maxlength="10" required>
+                            <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="10-digit number" pattern="[0-9]{10}" title="Please enter a 10-digit mobile number" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                         </div>
                         <div class="input-group">
                             <label for="travelDate">Travel Date</label>
@@ -725,9 +725,13 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="input-group">
-                                    <label><i class="far fa-user"></i> Full Name</label>
-                                    <input type="text" id="modalName" placeholder="Enter your full name" required>
+                                <div class="input-group full-width">
+                                    <label><i class="far fa-user"></i> Name Details (First, Middle, Last)</label>
+                                    <div class="modal-name-grid">
+                                        <input type="text" id="modalFirstName" placeholder="First Name" required>
+                                        <input type="text" id="modalMiddleName" placeholder="Middle Name" required>
+                                        <input type="text" id="modalLastName" placeholder="Last Name" required>
+                                    </div>
                                 </div>
                                 <div class="input-group">
                                     <label><i class="far fa-envelope"></i> Email Address</label>
@@ -735,7 +739,7 @@
                                 </div>
                                 <div class="input-group">
                                     <label><i class="fas fa-mobile-alt"></i> Mobile No.</label>
-                                    <input type="tel" id="modalPhone" placeholder="10-digit number" pattern="[0-9]{10}" maxlength="10" required>
+                                    <input type="tel" id="modalPhone" placeholder="10-digit number" pattern="[0-9]{10}" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                                 </div>
                             </div>
 

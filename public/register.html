@@ -195,23 +195,27 @@
         /* Send OTP Button inside input */
         .email-wrapper {
             position: relative;
-            display: flex;
-            align-items: center;
         }
 
         .btn-send-otp {
             position: absolute;
             right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
             background: var(--primary);
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 8px 14px;
             border-radius: 8px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
             transition: 0.3s;
-            z-index: 5;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
         }
 
         .btn-send-otp:hover {
@@ -379,7 +383,7 @@
                         <label>Email Address</label>
                         <div class="input-wrapper email-wrapper">
                             <i class="far fa-envelope"></i>
-                            <input type="email" id="email" placeholder="john@example.com" required autocomplete="off" style="padding-right: 100px;">
+                            <input type="email" id="email" placeholder="john@example.com" required autocomplete="off" style="padding-right: 110px;">
                             <button type="button" class="btn-send-otp" id="sendOtpBtn">Send OTP</button>
                         </div>
                     </div>
@@ -398,7 +402,7 @@
                         <label>Mobile Number</label>
                         <div class="input-wrapper">
                             <i class="fas fa-mobile-alt"></i>
-                            <input type="tel" id="mobile" placeholder="10-digit number" pattern="[0-9]{10}" required>
+                            <input type="tel" id="mobile" placeholder="10-digit number" maxlength="10" minlength="10" pattern="[0-9]{10}" required oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                         </div>
                     </div>
                 </div>
@@ -511,7 +515,7 @@
         };
 
         const sendOtpBtn = document.getElementById('sendOtpBtn');
-        const otpSection = document.getElementById('otpSection');
+        // const otpSection = document.getElementById('otpSection'); (Not present in HTML)
         const otpInput = document.getElementById('otp');
 
         // Send OTP Logic
