@@ -989,21 +989,15 @@ section {
         font-size: 0.7rem;
         padding: 4px 12px;
     }
-
-    .whatsapp-float {
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-        bottom: 20px;
-        right: 20px;
-    }
 }
+
+
 
 /* Toast Notification */
 .toast {
     position: fixed;
     top: 30px;
-    right: -450px; /* Initially hidden */
+    right: -500px; /* Pushed further out */
     background: white;
     padding: 15px 25px;
     border-radius: 12px;
@@ -1014,10 +1008,14 @@ section {
     z-index: 9999;
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
     max-width: 90%;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .toast.show {
     right: 30px;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 @media (max-width: 768px) {
@@ -1654,40 +1652,7 @@ section {
     color: #666;
 }
 
-/* WhatsApp Float */
-.whatsapp-float {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: #25d366;
-    color: white;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4);
-    z-index: 2000;
-    text-decoration: none;
-    transition: var(--transition);
-    animation: whatsapp-bounce 2s infinite ease-in-out;
-}
 
-@keyframes whatsapp-bounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-15px);
-    }
-}
-
-.whatsapp-float:hover {
-    transform: scale(1.1) rotate(10deg);
-    animation-play-state: paused;
-}
 
 @media (max-width: 768px) {
     .search-box {

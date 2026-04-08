@@ -14,7 +14,9 @@ const bookingSchema = new mongoose.Schema({
     duration: { type: String, required: true },
     paymentStatus: { type: String, default: 'Pending' }, 
     paymentMethod: { type: String, default: 'Online' },
-    bookingId: { type: String },
+    bookingId: { type: String }, // Friendly TGO-XXXX ID
+    manualPayment: { type: Boolean, default: false },
+    isArchived: { type: Boolean, default: false }, // For soft-reset
     razorpayOrderId: { type: String },
     razorpayPaymentId: { type: String },
     razorpaySignature: { type: String },

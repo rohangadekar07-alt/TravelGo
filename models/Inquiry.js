@@ -7,6 +7,8 @@ const inquirySchema = new mongoose.Schema({
     mobileNumber: { type: String, required: true },
     travelDate: { type: Date, required: true },
     travelSpot: { type: String, required: true },
+    status: { type: String, default: 'new' },
+    isArchived: { type: Boolean, default: false }, // For soft-reset
     submittedAt: { type: Date, default: Date.now }
 });
 

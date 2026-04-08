@@ -6,6 +6,7 @@
     <title>Create Account | TravelGO</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary: #3a86ff;
@@ -383,7 +384,7 @@
                         <label>Email Address</label>
                         <div class="input-wrapper email-wrapper">
                             <i class="far fa-envelope"></i>
-                            <input type="email" id="email" placeholder="john@example.com" required autocomplete="off" style="padding-right: 110px;">
+                            <input type="email" id="email" placeholder="example@gmail.com" required autocomplete="off" style="padding-right: 110px;">
                             <button type="button" class="btn-send-otp" id="sendOtpBtn">Send OTP</button>
                         </div>
                     </div>
@@ -502,7 +503,11 @@
                     getLocationBtn.innerHTML = '<i class="fas fa-times-circle"></i> Location Added (Click to Reset)';
                     getLocationBtn.classList.add('active');
                 }, (err) => {
-                    alert('Unable to retrieve location: ' + err.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Location Error',
+                        text: 'Unable to retrieve location: ' + err.message
+                    });
                     getLocationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Add Live Location (Optional)';
                 }, {
                     enableHighAccuracy: true,
@@ -510,7 +515,11 @@
                     maximumAge: 0
                 });
             } else {
-                alert('Geolocation is not supported by your browser.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Not Supported',
+                    text: 'Geolocation is not supported by your browser.'
+                });
             }
         };
 
@@ -522,7 +531,11 @@
         sendOtpBtn.onclick = async () => {
             const email = document.getElementById('email').value;
             if (!email || !email.includes('@')) {
-                alert('Please enter a valid email address');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Email',
+                    text: 'Please enter a valid email address'
+                });
                 return;
             }
 
@@ -565,7 +578,11 @@
                     sendOtpBtn.innerHTML = originalText;
                 }
             } catch (error) {
-                alert('Connection error. Try again.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Connection error. Try again.'
+                });
                 sendOtpBtn.disabled = false;
                 sendOtpBtn.textContent = 'Send OTP';
             }
@@ -586,7 +603,11 @@
             
             const otpValue = otpInput.value;
             if (!otpValue) {
-                alert('Please click "Send OTP" and enter the code received in your email');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'OTP Required',
+                    text: 'Please click "Send OTP" and enter the code received in your email'
+                });
                 return;
             }
 

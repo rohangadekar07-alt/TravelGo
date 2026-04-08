@@ -6,13 +6,23 @@
     <title>My Profile | TravelGO</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary: #3a86ff;
             --primary-dark: #2563eb;
+            --secondary: #8338ec;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
             --dark: #0f172a;
             --slate: #64748b;
             --light: #f8fafc;
+            --white: #ffffff;
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --shadow: 0 10px 30px -5px rgba(0,0,0,0.08);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,15 +31,18 @@
             font-family: 'Inter', sans-serif;
             background: #f1f5f9;
             color: var(--dark);
+            line-height: 1.6;
         }
 
+        /* Navbar Styling */
         nav {
-            background: white;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
             padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -41,52 +54,335 @@
             font-weight: 800;
             color: var(--dark);
             text-decoration: none;
+            letter-spacing: -0.5px;
         }
 
-        .logo span {
-            color: var(--primary);
-        }
+        .logo span { color: var(--primary); }
 
-        .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .profile-header {
-            background: white;
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        .nav-left {
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: var(--light);
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover { background: #e2e8f0; }
+        .btn-logout { background: #fff1f2; color: var(--danger); }
+        .btn-logout:hover { background: #ffe4e6; }
+
+        @media (max-width: 600px) {
+            nav { padding: 12px 15px; }
+            .btn-back span { display: none; }
+            .nav-btn { padding: 10px 14px; }
+            .logo { font-size: 1.3rem; }
+            .btn-logout { font-size: 0.75rem; padding: 8px 12px; }
+            
+            .header-main-info { padding: 0 20px 25px 20px; }
+            .user-top-row { flex-direction: column; align-items: center; text-align: center; gap: 15px; }
+            .user-meta h1 { font-size: 1.5rem; }
+        }
+
+        /* Compact Profile Header */
+        .profile-card-pro {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
             margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .header-top {
+            height: 100px;
+            background: var(--gradient);
+        }
+
+        .header-main-info {
+            padding: 0 40px 30px 40px;
+            display: flex;
+            flex-direction: column;
+            margin-top: -50px;
+        }
+
+        .user-top-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .info-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: var(--radius-md);
+            border: 1px solid #f1f5f9;
+        }
+
+        .strip-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .strip-item i {
+            width: 35px;
+            height: 35px;
+            background: var(--white);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .strip-text label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--slate);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .strip-text span {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Large Action Buttons */
+        .section-toggles {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .toggle-card {
+            flex: 1;
+            background: var(--white);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border: 2px solid transparent;
+        }
+
+        .toggle-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .toggle-card.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .toggle-card.active .icon-box {
+            background: rgba(255,255,255,0.2);
+            color: var(--white);
+        }
+
+        .toggle-card.active .toggle-text p {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            background: #eff6ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+            transition: 0.3s;
+        }
+
+        .toggle-text h3 {
+            font-family: 'Outfit';
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        #bookingsSection, #inquiriesSection {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .pro-item {
+            padding: 24px;
+            border-radius: var(--radius-md);
+            background: var(--white);
+            border: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .pro-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(58, 134, 255, 0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+        }
+
+        .item-info-main h4 {
+            font-family: 'Outfit';
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .item-info-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .info-sub {
+            font-size: 0.85rem;
+            color: var(--slate);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .info-sub i { color: var(--primary); width: 14px; }
+
+        .status-pill {
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .status-paid { background: #ecfdf5; color: #059669; }
+        .status-pending { background: #fffbeb; color: #d97706; }
+        .status-sent { background: #eff6ff; color: #2563eb; }
+
+        .receipt-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .receipt-action:hover { text-decoration: underline; color: var(--secondary); }
+
+        /* Buttons */
+        .nav-btn {
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            border: 1.5px solid transparent;
+        }
+
+        .btn-back {
+            background: var(--white);
+            color: var(--dark);
+            border-color: #e2e8f0;
+            text-decoration: none;
+        }
+        .btn-back:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); }
+
+        .btn-logout {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+        .btn-logout:hover { background: #fecaca; transform: translateY(-2px); }
+
+        .btn-edit-pro {
+            background: #eff6ff;
+            color: var(--primary);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        /* Avatar Section Fix */
+        .user-top-row {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .avatar-container {
+            position: relative;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
         .avatar-huge {
-            width: 120px;
-            height: 120px;
-            background: var(--primary);
-            color: white;
+            width: 140px;
+            height: 140px;
+            background: var(--white);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3.5rem;
-            font-weight: 700;
+            font-size: 3.8rem;
+            font-weight: 800;
             font-family: 'Outfit', sans-serif;
-            position: relative;
-            cursor: pointer;
-            overflow: hidden;
-            border: 4px solid white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 6px solid var(--white);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
             background-size: cover;
             background-position: center;
-        }
-
-        .avatar-huge:hover .upload-overlay {
-            opacity: 1;
+            cursor: pointer;
+            overflow: hidden;
+            color: var(--primary);
+            position: relative;
         }
 
         .upload-overlay {
@@ -95,7 +391,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             color: white;
             display: flex;
             flex-direction: column;
@@ -104,7 +400,11 @@
             opacity: 0;
             transition: 0.3s;
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 700;
+        }
+
+        .avatar-huge:hover .upload-overlay {
+            opacity: 1;
         }
 
         .upload-overlay i {
@@ -112,199 +412,29 @@
             margin-bottom: 5px;
         }
 
-        .user-info h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 2rem;
-            margin-bottom: 5px;
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .header-main-info { padding: 0 20px 30px 20px; }
+            .user-top-row { 
+                flex-direction: column; 
+                align-items: center; 
+                text-align: center; 
+                gap: 15px; 
+            }
+            .user-meta h1 { font-size: 1.6rem; }
+            .info-strip { grid-template-columns: 1fr; gap: 12px; padding: 15px; }
+            .section-toggles { flex-direction: column; gap: 15px; }
+            .toggle-card { padding: 18px; }
+            .pro-item { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .item-status { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+            .btn-back span { display: none; }
+            .nav-left .logo { font-size: 1.2rem; }
+            .nav-btn { padding: 8px 12px; font-size: 0.8rem; }
         }
 
-        .user-info p {
-            color: var(--slate);
-            font-size: 1rem;
-        }
-
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 30px;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-
-        .card-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .detail-item {
-            margin-bottom: 20px;
-        }
-
-        .detail-item label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--slate);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
-        }
-
-        .detail-item span {
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .btn-edit {
-            color: var(--primary);
-            background: rgba(58, 134, 255, 0.1);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .tab {
-            padding: 10px 0;
-            font-weight: 600;
-            color: var(--slate);
-            cursor: pointer;
-            position: relative;
-        }
-
-        .tab.active {
-            color: var(--primary);
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--primary);
-        }
-
-        /* History Tables */
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .history-item {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 16px;
-            border: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-main h4 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-
-        .item-meta {
-            font-size: 0.85rem;
-            color: var(--slate);
-            display: flex;
-            gap: 15px;
-        }
-
-        .badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .badge-success { background: #dcfce7; color: #166534; }
-        .badge-pending { background: #fef3c7; color: #92400e; }
-        .badge-blue { background: #dbeafe; color: #1e40af; }
-
-        .btn-logout {
-            background: #fee2e2;
-            color: #b91c1c;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .btn-back-home {
-            background: white;
-            color: var(--dark);
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border: 1.5px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
-        }
-
-        .btn-back-home:hover {
-            background: #f8fafc;
-            transform: translateX(-3px);
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        @media (max-width: 900px) {
-            .grid-layout { grid-template-columns: 1fr; }
-            .profile-header { flex-direction: column; text-align: center; }
-            nav { padding: 10px 4%; }
-            .btn-back-home span { display: none; } /* Hide text on mobile, icons only */
-        }
         @media (max-width: 480px) {
-            .container { margin: 20px auto; padding: 0 15px; }
-            .profile-header { padding: 25px 15px; }
-            .user-info h1 { font-size: 1.5rem; }
-            .card { padding: 20px 15px; }
-            .history-item { padding: 15px; }
+            .avatar-huge { width: 110px; height: 110px; font-size: 3rem; margin-top: -10px; }
+            .header-top { height: 80px; }
         }
     </style>
 </head>
@@ -312,76 +442,100 @@
 
     <nav>
         <div class="nav-left">
-            <a href="/" class="btn-back-home">
+            <a href="/" class="nav-btn btn-back">
                 <i class="fas fa-arrow-left"></i> <span>Back to Home</span>
             </a>
             <a href="/" class="logo">Travel<span>GO</span></a>
         </div>
         <div class="nav-right">
-            <button onclick="logout()" class="btn-logout">Logout</button>
+            <button onclick="logout()" class="nav-btn btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="profile-header">
-            <div class="avatar-huge" id="avatarChar" onclick="document.getElementById('profileInput').click()">
-                <span id="initialChar">?</span>
-                <div class="upload-overlay">
-                    <i class="fas fa-camera"></i>
-                    <span>Change</span>
+    <div class="container" style="max-width: 1000px; margin: 30px auto; padding: 0 20px;">
+        <!-- Compact Profile Card -->
+        <div class="profile-card-pro">
+            <div class="header-top"></div>
+            <div class="header-main-info">
+                <div class="user-top-row">
+                    <div class="avatar-container">
+                        <div class="avatar-huge" id="avatarChar" onclick="document.getElementById('profileInput').click()">
+                            <span id="initialChar">?</span>
+                            <div class="upload-overlay">
+                                <i class="fas fa-camera"></i>
+                                <span>Change</span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="profileInput" style="display: none;" accept="image/*" onchange="handleImageUpload(event)">
+                    <div class="user-meta">
+                        <h1 id="headerName" style="font-size: 1.8rem;">Loading...</h1>
+                        <p id="headerEmail">...</p>
+                        <button class="btn-edit-pro" style="margin-top: 10px;" onclick="updateProfile()">
+                            <i class="fas fa-pen"></i> Edit Profile
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <input type="file" id="profileInput" style="display: none;" accept="image/*" onchange="handleImageUpload(event)">
-            <div class="user-info">
-                <h1 id="headerName">Loading...</h1>
-                <p id="headerEmail">...</p>
+
+                <!-- Horizontal Info Strip -->
+                <div class="info-strip">
+                    <div class="strip-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <div class="strip-text">
+                            <label>Mobile</label>
+                            <span id="detMobile">--</span>
+                        </div>
+                    </div>
+                    <div class="strip-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="strip-text">
+                            <label>Address</label>
+                            <span id="detAddress">--</span>
+                        </div>
+                    </div>
+                    <div class="strip-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <div class="strip-text">
+                            <label>Security</label>
+                            <span id="detLocation">Verified</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="grid-layout">
-            <aside>
-                <div class="card">
-                    <div class="card-title">
-                        Personal Details
-                        <button class="btn-edit" onclick="alert('Update Profile logic can be added here!')">Edit</button>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <label>Full Name</label>
-                        <span id="detName">--</span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Mobile Number</label>
-                        <span id="detMobile">--</span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Address</label>
-                        <span id="detAddress">--</span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Location Status</label>
-                        <span id="detLocation">Not Shared</span>
-                    </div>
+        <!-- Large Toggle Buttons -->
+        <div class="section-toggles">
+            <div class="toggle-card active" id="toggle-bookings" onclick="switchTab('bookings')">
+                <div class="icon-box">
+                    <i class="fas fa-suitcase-rolling"></i>
                 </div>
-            </aside>
-
-            <main>
-                <div class="card">
-                    <div class="tabs">
-                        <div class="tab active" onclick="switchTab('bookings')">My Bookings</div>
-                        <div class="tab" onclick="switchTab('inquiries')">My Inquiries</div>
-                    </div>
-
-                    <div id="bookingsSection" class="history-list">
-                        <!-- Bookings go here -->
-                        <p style="color: var(--slate); text-align: center; padding: 20px;">Fetching your bookings...</p>
-                    </div>
-
-                    <div id="inquiriesSection" class="history-list" style="display: none;">
-                        <!-- Inquiries go here -->
-                    </div>
+                <div class="toggle-text">
+                    <h3>My Bookings</h3>
+                    <p>Track your trips</p>
                 </div>
-            </main>
+            </div>
+            <div class="toggle-card" id="toggle-inquiries" onclick="switchTab('inquiries')">
+                <div class="icon-box">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <div class="toggle-text">
+                    <h3>My Inquiries</h3>
+                    <p>View your queries</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Area -->
+        <div class="pro-card" style="padding: 20px;">
+            <div id="bookingsSection" class="list-container">
+                <!-- Bookings go here -->
+            </div>
+            <div id="inquiriesSection" class="list-container" style="display: none;">
+                <!-- Inquiries go here -->
+            </div>
         </div>
     </div>
 
@@ -403,7 +557,6 @@
                     const u = profileData.user;
                     document.getElementById('headerName').textContent = u.fullName;
                     document.getElementById('headerEmail').textContent = u.email;
-                    document.getElementById('detName').textContent = u.fullName;
                     document.getElementById('detMobile').textContent = u.mobileNumber;
                     document.getElementById('detAddress').textContent = u.address;
                     
@@ -439,70 +592,166 @@
             }
         }
 
+        function formatStatus(status) {
+            if (status === 'Paid' || status === 'Awaiting Verification') return 'ONLINE PAID';
+            if (status === 'Cash Pending') return 'CASH PENDING';
+            if (status === 'Cash Confirmed') return 'CASH PAID';
+            return status.toUpperCase();
+        }
+
+        function getStatusClass(status) {
+            if (status === 'Paid' || status === 'Awaiting Verification' || status === 'Cash Confirmed') return 'status-paid';
+            if (status === 'Cash Pending') return 'status-pending';
+            return 'status-sent';
+        }
+
         function renderHistory(bookings, inquiries) {
             const bCont = document.getElementById('bookingsSection');
             const iCont = document.getElementById('inquiriesSection');
 
             if (bookings.length === 0) {
-                bCont.innerHTML = '<p style="text-align:center; color:gray;">No bookings found yet.</p>';
+                bCont.innerHTML = '<div style="text-align:center; padding:30px; color:var(--slate);">No bookings found yet. Explore our packages to book your first trip!</div>';
             } else {
-                bCont.innerHTML = bookings.map(b => `
-                    <div class="history-item">
-                        <div class="item-main">
+                bCont.innerHTML = bookings.map(b => {
+                    // Clean price to remove any redundant Rs
+                    const cleanPrice = b.price.replace(/Rs/g, '').trim();
+                    
+                    return `
+                    <div class="pro-item">
+                        <div class="item-info-main">
                             <h4>${b.travelSpot} Holiday</h4>
-                            <div class="item-meta">
-                                <span><i class="far fa-calendar-alt"></i> ${new Date(b.travelDate).toLocaleDateString()}</span>
-                                <span><i class="fas fa-hashtag"></i> ${b.bookingId || 'N/A'}</span>
-                                <span><i class="fas fa-rupee-sign"></i> ${b.price}</span>
+                            <div class="item-info-row">
+                                <span class="info-sub"><i class="far fa-calendar-alt"></i> ${new Date(b.travelDate).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}</span>
+                                <span class="info-sub"><i class="fas fa-fingerprint"></i> ID: ${b.bookingId || 'N/A'}</span>
+                                <span class="info-sub" style="font-weight:700; color:var(--dark);"><i class="fas fa-rupee-sign"></i> ${cleanPrice}</span>
                             </div>
-                        </div>
-                        <div class="item-status">
-                            <span class="badge ${getStatusBadge(b.paymentStatus)}">${b.paymentStatus}</span>
-                            ${(b.paymentStatus === 'Paid' || b.paymentStatus === 'Cash Confirmed') ? 
-                                `<a href="/receipt.html?id=${b._id}" class="receipt-link" style="display:block; font-size: 0.75rem; color: var(--primary); text-decoration:none; margin-top:5px; font-weight:700;"><i class="fas fa-file-invoice"></i> Receipt</a>` : ''
+                            ${(b.paymentStatus === 'Paid' || b.paymentStatus === 'Cash Confirmed' || b.paymentStatus === 'Awaiting Verification') ? 
+                                `<a href="/receipt.html?id=${b._id}" class="receipt-action"><i class="fas fa-file-pdf"></i> Download Receipt</a>` : ''
                             }
                         </div>
+                        <div class="item-status">
+                            <span class="status-pill ${getStatusClass(b.paymentStatus)}">${formatStatus(b.paymentStatus)}</span>
+                        </div>
                     </div>
-                `).join('');
+                `}).join('');
             }
 
             if (inquiries.length === 0) {
-                iCont.innerHTML = '<p style="text-align:center; color:gray;">No inquiries found.</p>';
+                iCont.innerHTML = '<div style="text-align:center; padding:30px; color:var(--slate);">You haven\'t sent any inquiries yet.</div>';
             } else {
                 iCont.innerHTML = inquiries.map(i => `
-                    <div class="history-item">
-                        <div class="item-main">
-                            <h4>Inquiry for ${i.travelSpot}</h4>
-                            <div class="item-meta">
-                                <span><i class="far fa-calendar-alt"></i> Travel Date: ${new Date(i.travelDate).toLocaleDateString()}</span>
-                                <span><i class="far fa-clock"></i> Sent: ${new Date(i.submittedAt).toLocaleDateString()}</span>
+                    <div class="pro-item">
+                        <div class="item-info-main">
+                            <h4>Enquiry for ${i.travelSpot}</h4>
+                            <div class="item-info-row">
+                                <span class="info-sub"><i class="far fa-calendar-check"></i> Travel Date: ${new Date(i.travelDate).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}</span>
+                                <span class="info-sub"><i class="far fa-clock"></i> Sent On: ${new Date(i.submittedAt).toLocaleDateString()}</span>
                             </div>
                         </div>
                         <div class="item-status">
-                            <span class="badge badge-blue">Sent</span>
+                            <span class="status-pill status-sent">Query Sent</span>
                         </div>
                     </div>
                 `).join('');
             }
         }
 
-        function getStatusBadge(status) {
-            if (status === 'Paid' || status === 'Cash Confirmed') return 'badge-success';
-            if (status === 'Cash Pending') return 'badge-pending';
-            return 'badge-blue';
-        }
-
         function switchTab(type) {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            const btnBookings = document.getElementById('toggle-bookings');
+            const btnInquiries = document.getElementById('toggle-inquiries');
+            const bookingsSection = document.getElementById('bookingsSection');
+            const inquiriesSection = document.getElementById('inquiriesSection');
 
             if (type === 'bookings') {
-                document.getElementById('bookingsSection').style.display = 'flex';
-                document.getElementById('inquiriesSection').style.display = 'none';
+                btnBookings.classList.add('active');
+                btnInquiries.classList.remove('active');
+                bookingsSection.style.display = 'flex';
+                inquiriesSection.style.display = 'none';
             } else {
-                document.getElementById('bookingsSection').style.display = 'none';
-                document.getElementById('inquiriesSection').style.display = 'flex';
+                btnInquiries.classList.add('active');
+                btnBookings.classList.remove('active');
+                bookingsSection.style.display = 'none';
+                inquiriesSection.style.display = 'flex';
+            }
+        }
+
+        async function updateProfile() {
+            const currentMobile = document.getElementById('detMobile').textContent;
+            const currentAddress = document.getElementById('detAddress').textContent;
+
+            const { value: formValues } = await Swal.fire({
+                title: '<span style="font-family:Outfit; font-weight:800;">Update Profile</span>',
+                html: `
+                    <div style="text-align: left; padding: 10px;">
+                        <div style="margin-bottom: 20px;">
+                            <label style="font-weight:800; font-size: 0.7rem; color: #64748b; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">
+                                <i class="fas fa-phone-alt" style="margin-right:5px;"></i> Mobile Number
+                            </label>
+                            <input id="swal-mobile" type="tel" maxlength="10" class="swal2-input" placeholder="Enter 10-digit mobile" value="${currentMobile}" 
+                                   style="margin:0; width:100%; border-radius:12px; font-family:Inter; font-weight:600;" 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+                        </div>
+                        
+                        <div>
+                            <label style="font-weight:800; font-size: 0.7rem; color: #64748b; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:8px;">
+                                <i class="fas fa-map-marker-alt" style="margin-right:5px;"></i> Home Address
+                            </label>
+                            <textarea id="swal-address" class="swal2-textarea" placeholder="Enter your full address" 
+                                      style="margin:0; width:100%; border-radius:12px; min-height:100px; font-family:Inter; font-size:0.95rem;">${currentAddress}</textarea>
+                        </div>
+                    </div>
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Save Changes',
+                confirmButtonColor: '#3a86ff',
+                cancelButtonColor: '#94a3b8',
+                customClass: {
+                    popup: 'premium-swal-popup',
+                    confirmButton: 'premium-confirm-btn',
+                    cancelButton: 'premium-cancel-btn'
+                },
+                preConfirm: () => {
+                    const mobile = document.getElementById('swal-mobile').value;
+                    const address = document.getElementById('swal-address').value;
+                    
+                    if (!mobile || mobile.length !== 10) {
+                        Swal.showValidationMessage('Please enter a valid 10-digit mobile number');
+                        return false;
+                    }
+                    if (!address || address.length < 5) {
+                        Swal.showValidationMessage('Please enter a complete address');
+                        return false;
+                    }
+                    
+                    return { mobileNumber: mobile, address: address }
+                }
+            });
+
+            if (formValues) {
+                try {
+                    Swal.fire({ title: 'Updating...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+                    const res = await fetch('/api/user/update-profile', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}` 
+                        },
+                        body: JSON.stringify(formValues)
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        Swal.fire('Updated!', 'Your profile has been updated successfully.', 'success');
+                        loadProfile(); // Refresh data on page
+                    } else {
+                        Swal.fire('Error', data.message || 'Update failed', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('Error', 'Connection error', 'error');
+                }
             }
         }
 
@@ -510,7 +759,6 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Preview instantly
             const reader = new FileReader();
             reader.onload = (e) => {
                 const avatar = document.getElementById('avatarChar');
@@ -519,7 +767,6 @@
             };
             reader.readAsDataURL(file);
 
-            // Upload to server
             const formData = new FormData();
             formData.append('profileImage', file);
 
@@ -530,15 +777,11 @@
                     body: formData
                 });
                 const data = await res.json();
-                if (data.success) {
-                    // Update successful
-                    console.log('Profile image updated:', data.imagePath);
-                } else {
-                    alert(data.message || 'Upload failed');
+                if (!data.success) {
+                    Swal.fire({ icon: 'error', title: 'Upload Failed', text: data.message });
                 }
             } catch (err) {
                 console.error('Upload Error:', err);
-                alert('Server error while uploading image.');
             }
         }
 

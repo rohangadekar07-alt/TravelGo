@@ -137,8 +137,8 @@ if (inquiryForm) {
 
         // Show loading state
         const submitBtn = inquiryForm.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.textContent;
-        submitBtn.textContent = 'Submitting...';
+        const originalBtnContent = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         submitBtn.disabled = true;
 
         const formData = {
@@ -152,7 +152,7 @@ if (inquiryForm) {
         // Mobile validation
         if (!/^\d{10}$/.test(formData.mobileNumber)) {
             showToast('Please enter a valid 10-digit mobile number.', 'error');
-            submitBtn.textContent = originalBtnText;
+            submitBtn.innerHTML = originalBtnContent;
             submitBtn.disabled = false;
             return;
         }
@@ -162,7 +162,7 @@ if (inquiryForm) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : ''
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(formData)
             });
@@ -170,16 +170,32 @@ if (inquiryForm) {
             const result = await response.json();
 
             if (response.ok) {
-                showToast('Inquiry submitted successfully!', 'success');
+                showToast('Inquiry saved! Opening WhatsApp...', 'success');
                 inquiryForm.reset();
+                
+                // Construct Professional WhatsApp message
+                const message = `🌟 *New Travel Inquiry* 🌟%0A%0A` +
+                    `👤 *Customer Name:* ${formData.fullName}%0A` +
+                    `📧 *Email:* ${formData.email}%0A` +
+                    `📞 *Mobile:* ${formData.mobileNumber}%0A` +
+                    `📍 *Destination:* ${formData.travelSpot}%0A` +
+                    `📅 *Preferred Date:* ${formData.travelDate}%0A%0A` +
+                    `---%0A` +
+                    `*"I am interested in this travel package and would like to receive more information regarding the itinerary and pricing. Please connect with me."*%0A%0A` +
+                    `_Sent via TravelGO Official Website_`;
+
+                const whatsappUrl = `https://wa.me/919890145825?text=${message}`;
+                setTimeout(() => {
+                    window.open(whatsappUrl, '_blank');
+                }, 1000);
             } else {
                 showToast(result.message || 'Error occurred.', 'error');
             }
         } catch (error) {
             console.error('Submission error:', error);
-            showToast('Check if MongoDB is running.', 'error');
+            showToast('Server error. Please try again.', 'error');
         } finally {
-            submitBtn.textContent = originalBtnText;
+            submitBtn.innerHTML = originalBtnContent;
             submitBtn.disabled = false;
         }
     });
@@ -237,22 +253,22 @@ function filterDestinations(category) {
 
 // Package Data
 const packages = {
-    'Bali': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/bali.png' },
-    'Switzerland': { price: 'Rs 1', duration: '7 Days / 6 Nights', img: 'images/switzerland.png' },
-    'Maldives': { price: 'Rs 1', duration: '4 Days / 3 Nights', img: 'images/maldives.png' },
-    'Japan': { price: 'Rs 1', duration: '6 Days / 5 Nights', img: 'images/japan.png' },
-    'Dubai': { price: 'Rs 1', duration: '4 Days / 3 Nights', img: 'images/dubai.png' },
-    'Paris': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/paris.png' },
-    'London': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/london.png' },
+    'Bali': { price: 'Rs 45,000', duration: '5 Days / 4 Nights', img: 'images/bali.png' },
+    'Switzerland': { price: 'Rs 95,000', duration: '7 Days / 6 Nights', img: 'images/switzerland.png' },
+    'Maldives': { price: 'Rs 55,000', duration: '4 Days / 3 Nights', img: 'images/maldives.png' },
+    'Japan': { price: 'Rs 95,000', duration: '6 Days / 5 Nights', img: 'images/japan.png' },
+    'Dubai': { price: 'Rs 50,000', duration: '4 Days / 3 Nights', img: 'images/dubai.png' },
+    'Paris': { price: 'Rs 95,000', duration: '5 Days / 4 Nights', img: 'images/paris.png' },
+    'London': { price: 'Rs 92,000', duration: '5 Days / 4 Nights', img: 'images/london.png' },
     // Indian Spots
-    'Manali': { price: 'Rs 1', duration: '4 Days / 3 Nights', img: 'images/manali.png' },
-    'Goa': { price: 'Rs 1', duration: '3 Days / 2 Nights', img: 'images/goa.png' },
-    'Rajasthan': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/rajasthan.png' },
-    'Kerala': { price: 'Rs 1', duration: '4 Days / 3 Nights', img: 'images/kerala.png' },
-    'Kashmir': { price: 'Rs 1', duration: '6 Days / 5 Nights', img: 'images/kashmir.png' },
-    'Ladakh': { price: 'Rs 1', duration: '7 Days / 6 Nights', img: 'images/ladakh.png' },
-    'Andaman': { price: 'Rs 1', duration: '5 Days / 4 Nights', img: 'images/andaman.png' },
-    'Hampi': { price: 'Rs 1', duration: '3 Days / 2 Nights', img: 'images/hampi.png' }
+    'Manali': { price: 'Rs 15,000', duration: '4 Days / 3 Nights', img: 'images/manali.png' },
+    'Goa': { price: 'Rs 12,000', duration: '3 Days / 2 Nights', img: 'images/goa.png' },
+    'Rajasthan': { price: 'Rs 18,000', duration: '5 Days / 4 Nights', img: 'images/rajasthan.png' },
+    'Kerala': { price: 'Rs 22,000', duration: '4 Days / 3 Nights', img: 'images/kerala.png' },
+    'Kashmir': { price: 'Rs 25,000', duration: '6 Days / 5 Nights', img: 'images/kashmir.png' },
+    'Ladakh': { price: 'Rs 35,000', duration: '7 Days / 6 Nights', img: 'images/ladakh.png' },
+    'Andaman': { price: 'Rs 30,000', duration: '5 Days / 4 Nights', img: 'images/andaman.png' },
+    'Hampi': { price: 'Rs 8,000', duration: '3 Days / 2 Nights', img: 'images/hampi.png' }
 };
 
 let currentSpot = '';
@@ -461,3 +477,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1200); // 1.2s delay for visual impact
     });
 });
+
+// WhatsApp Inquiry Function
+async function submitToWhatsApp() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showToast('Please Register or Login first to send a WhatsApp Inquiry.', 'error');
+        setTimeout(() => {
+            window.location.href = '/register.html';
+        }, 2000);
+        return;
+    }
+
+    const fullName = document.getElementById('fullName').value;
+    const email = document.getElementById('email').value;
+    const mobileNumber = document.getElementById('mobileNumber').value;
+    const travelDate = document.getElementById('travelDate').value;
+    const travelSpot = document.getElementById('travelSpot').value;
+
+    if (!fullName || !email || !mobileNumber || !travelDate || !travelSpot) {
+        showToast('Please fill all the fields before sending WhatsApp inquiry.', 'error');
+        return;
+    }
+
+    if (!/^\d{10}$/.test(mobileNumber)) {
+        showToast('Please enter a valid 10-digit mobile number.', 'error');
+        return;
+    }
+
+    // Save to DB so admin can see it in dashboard
+    try {
+        await fetch('/api/inquiries', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ fullName, email, mobileNumber, travelDate, travelSpot })
+        });
+    } catch (e) {
+        console.log("DB save failed, but proceeding to WhatsApp...");
+    }
+
+    // Construct Professional WhatsApp message
+    const message = `🌟 *Direct WhatsApp Inquiry* 🌟%0A%0A` +
+        `👤 *Customer Name:* ${fullName}%0A` +
+        `📧 *Email:* ${email}%0A` +
+        `📞 *Mobile:* ${mobileNumber}%0A` +
+        `📍 *Destination:* ${travelSpot}%0A` +
+        `📅 *Preferred Date:* ${travelDate}%0A%0A` +
+        `---%0A` +
+        `*"I have viewed your travel packages and would like to discuss the ${travelSpot} trip in detail via WhatsApp. Looking forward to your response."*%0A%0A` +
+        `_Sent via TravelGO Official Website_`;
+
+    const whatsappUrl = `https://wa.me/919890145825?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+}

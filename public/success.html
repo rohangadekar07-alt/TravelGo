@@ -127,7 +127,7 @@
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 12px;">
-            <a href="/receipt.html" class="btn-receipt">
+            <a href="/receipt.html" class="btn-receipt" id="receiptBtn">
                 <i class="fas fa-file-invoice"></i> Download Payment Receipt
             </a>
             <a href="/" class="btn-home">Great! Return to Home</a>
@@ -168,6 +168,13 @@
             document.getElementById('resDate').textContent = new Date(booking.travelDate).toLocaleDateString('en-US', {
                 day: 'numeric', month: 'long', year: 'numeric'
             });
+
+            // Update receipt link
+            const receiptBtn = document.getElementById('receiptBtn');
+            if(receiptBtn && booking.dbId) {
+                receiptBtn.href = `/receipt.html?id=${booking.dbId}`;
+                receiptBtn.target = "_blank";
+            }
         } else {
             window.location.href = '/';
         }

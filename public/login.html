@@ -6,6 +6,7 @@
     <title>Login | TravelGO</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary: #3a86ff;
@@ -295,7 +296,7 @@
                 <label>Email Address</label>
                 <div class="input-wrapper">
                     <i class="far fa-envelope"></i>
-                    <input type="email" id="email" placeholder="name@example.com" required autocomplete="off">
+                    <input type="email" id="email" placeholder="example@gmail.com" required autocomplete="off">
                 </div>
             </div>
 
@@ -409,9 +410,13 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    msg.textContent = 'Login successful! Redirecting...';
-                    msg.className = 'msg-success';
-                    msg.style.display = 'block';
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful',
+                        text: 'Welcome back! Redirecting...',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                     
                     // Store token and user info
                     localStorage.setItem('token', data.token);
@@ -419,11 +424,13 @@
 
                     setTimeout(() => {
                         window.location.href = '/';
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    msg.textContent = data.message;
-                    msg.className = 'msg-error';
-                    msg.style.display = 'block';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: data.message
+                    });
                 }
             } catch (err) {
                 msg.textContent = 'Connection error. Please try again.';

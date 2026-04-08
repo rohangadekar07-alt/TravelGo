@@ -88,6 +88,8 @@
         .sidebar-nav {
             flex-grow: 1;
             padding: 20px 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .nav-item {
@@ -245,103 +247,47 @@
             font-size: 0.9rem;
         }
 
+        /* Responsive Optimization */
+        @media (max-width: 1024px) {
+            .sidebar { width: 80px; padding: 25px 0; }
+            .nav-text, .sidebar-header h2 { display: none; }
+            .nav-item { justify-content: center; padding: 15px; }
+            .nav-icon { margin: 0; font-size: 1.4rem; }
+            .main-content { padding: 25px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
         @media (max-width: 768px) {
-            .sidebar { 
-                position: fixed;
-                left: -260px;
-                top: 0;
-                bottom: 0;
-                width: 260px;
-                z-index: 2001;
-                transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            .sidebar.active {
-                left: 0;
-            }
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 2000;
-                backdrop-filter: blur(4px);
-            }
-            .sidebar-overlay.active {
-                display: block;
-            }
-            
-            .main-content { 
-                padding: 100px 15px 30px; 
-            }
-
-            .content-header {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                background: white;
-                padding: 15px 20px;
-                z-index: 1000;
+            .stats-grid { grid-template-columns: 1fr; }
+            .management-bar { flex-direction: column; gap: 15px; align-items: stretch; }
+            .search-box { width: 100% !important; }
+            .filter-group { flex-direction: column; }
+            .inquiry-grid { grid-template-columns: 1fr; }
+            .main-content { padding: 80px 15px 30px; }
+            .content-header { 
+                position: fixed; top: 0; left: 0; right: 0; 
+                background: white; padding: 15px 20px; z-index: 1000;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
             }
-
-            .menu-btn-admin {
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-                cursor: pointer;
+            .sidebar { 
+                position: fixed; left: -280px; width: 280px; 
+                height: 100vh; top: 0; transition: 0.3s; z-index: 2005; 
+                background: var(--dark-bg);
             }
-            .menu-btn-admin .bar {
-                width: 22px;
-                height: 3px;
-                background: #1f2937;
-                border-radius: 3px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .stat-card {
-                padding: 20px;
-            }
+            .sidebar.active { left: 0; }
+            .nav-text, .sidebar-header h2 { display: block; }
+            .nav-item { justify-content: flex-start; padding: 14px 25px; }
+            .nav-icon { margin-right: 15px; }
+            .menu-btn-admin { display: flex; }
             
-            .chart-container {
-                padding: 15px;
-                margin-top: 20px;
-            }
-            
-            .inquiry-card {
-                grid-template-columns: 1fr;
-                gap: 15px;
-                padding: 20px;
-            }
-
-            .field {
-                border-bottom: 1px solid #f3f4f6;
-                padding-bottom: 10px;
-            }
-
-            .field:last-child {
-                border-bottom: none;
-                padding-bottom: 0;
-            }
+            /* Responsive summaries */
+            div[style*="display:flex; gap:16px;"] { flex-direction: column !important; }
         }
 
         @media (max-width: 480px) {
-            .content-header h2 {
-                font-size: 1.2rem;
-            }
-            #lastUpdate {
-                display: none;
-            }
+            .content-header h2 { font-size: 1.2rem; }
+            .stat-card { padding: 15px; }
+            #lastUpdate { display: none; }
         }
     </style>
 </head>
@@ -374,46 +320,49 @@
                 <div class="logo">Travel<span>GO</span></div>
             </div>
             <nav class="sidebar-nav">
-                <div class="nav-item active" onclick="switchView('all', this)">
+                <div class="nav-item active" id="dashboardNavItem" onclick="switchView('all', this)">
                     <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
                     <span class="nav-text">Dashboard</span>
                 </div>
                 <div class="nav-item" onclick="switchView('bookings', this)">
                     <span class="nav-icon"><i class="fas fa-suitcase-rolling"></i></span>
-                    <span class="nav-text">Bookings</span>
+                    <span class="nav-text">Confirm Bookings</span>
                 </div>
                 <div class="nav-item" onclick="switchView('inquiries', this)">
                     <span class="nav-icon"><i class="fas fa-envelope-open-text"></i></span>
                     <span class="nav-text">Inquiries</span>
+                    <span id="inquiryBadge" style="
+                        background: #ec4899; color: white; font-size: 0.65rem;
+                        font-weight: 800; padding: 2px 7px; border-radius: 20px;
+                        margin-left: auto; display: none;
+                    ">0</span>
                 </div>
                 <div class="nav-item" onclick="switchView('cash', this)" id="cashNavItem">
                     <span class="nav-icon"><i class="fas fa-money-bill-wave"></i></span>
-                    <span class="nav-text">Cash Bookings</span>
+                    <span class="nav-text">Pending Bookings</span>
                     <span id="cashPendingBadge" style="
                         background: #f59e0b; color: white; font-size: 0.65rem;
                         font-weight: 800; padding: 2px 7px; border-radius: 20px;
                         margin-left: auto; display: none;
                     ">0</span>
                 </div>
-                <div class="nav-item" onclick="switchView('settings', this)">
+                <div class="nav-item" id="superAdminUsersNav" style="display: none;" onclick="switchView('users', this)">
+                    <span class="nav-icon"><i class="fas fa-users"></i></span>
+                    <span class="nav-text">Registered Users</span>
+                </div>
+                <div class="nav-item" id="settingsNavItem" onclick="switchView('settings', this)">
                     <span class="nav-icon"><i class="fas fa-cog"></i></span>
                     <span class="nav-text">Settings</span>
                 </div>
-                <a href="/" class="nav-item" style="margin-top: auto; text-decoration: none; color: inherit;">
+                <a href="/" class="nav-item" style="text-decoration: none; color: inherit;">
                     <span class="nav-icon"><i class="fas fa-house"></i></span>
                     <span class="nav-text">Back to Site</span>
                 </a>
-            </nav>
-            <div class="sidebar-footer" style="padding: 10px; display: flex; flex-direction: column; gap: 8px;">
-                <button onclick="clearData()" class="btn-logout" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">
-                    <span class="nav-icon"><i class="fas fa-trash-alt"></i></span>
-                    <span class="nav-text">Reset Data</span>
-                </button>
-                <button id="logoutBtn" class="btn-logout">
+                <div class="nav-item logout-nav-item" onclick="logout()" style="margin-top: auto; color: #ef4444; border-top: 1px solid rgba(255,255,255,0.05);">
                     <span class="nav-icon"><i class="fas fa-right-from-bracket"></i></span>
-                    <span class="nav-text">Logout</span>
-                </button>
-            </div>
+                    <span class="nav-text" style="font-weight: 700;">Logout</span>
+                </div>
+            </nav>
         </aside>
 
         <!-- Main Content Area -->
@@ -479,7 +428,7 @@
 
             <div id="confirmedSection" style="display: none;">
                 <div class="section-header">
-                    <h3><i class="fas fa-suitcase-rolling" style="color: #3b82f6;"></i> All Bookings</h3>
+                    <h3><i class="fas fa-suitcase-rolling" style="color: #3b82f6;"></i> Confirm Bookings</h3>
                 </div>
                 <!-- Unified Management Bar -->
                 <div class="management-bar">
@@ -513,19 +462,62 @@
             </div>
 
             <div id="inquirySection" style="display: none;">
-                <div class="section-header">
-                    <h3><i class="fas fa-paper-plane" style="color: #ec4899;"></i> General Inquiries</h3>
+                <!-- Summary bar -->
+                <div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
+                    <div style="background:#fdf2f8; border:1.5px solid #fbcfe8; border-radius:14px; padding:16px 24px; display:flex; align-items:center; gap:14px; flex:1; min-width:180px; cursor: pointer;" onclick="switchInquiryTab('new')">
+                        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#fce7f3,#fbcfe8);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#db2777;"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <span style="font-size:0.75rem;color:#9d174d;font-weight:600;display:block;">New Inquiries</span>
+                            <strong style="font-size:1.6rem;color:#db2777;font-family:'Outfit',sans-serif;" id="newInquiryCount">0</strong>
+                        </div>
+                    </div>
+                    <div style="background:#f1f5f9; border:1.5px solid #e2e8f0; border-radius:14px; padding:16px 24px; display:flex; align-items:center; gap:14px; flex:1; min-width:180px; cursor: pointer;" onclick="switchInquiryTab('read')">
+                        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#f8fafc,#e2e8f0);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#475569;"><i class="fas fa-check-double"></i></div>
+                        <div>
+                            <span style="font-size:0.75rem;color:#475569;font-weight:600;display:block;">Read Inquiries</span>
+                            <strong style="font-size:1.6rem;color:#475569;font-family:'Outfit',sans-serif;" id="readInquiryCount">0</strong>
+                        </div>
+                    </div>
                 </div>
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="inquirySearch" class="search-input" placeholder="Search inquiries by name or mobile..." onkeyup="filterInquiries()">
+
+                <div class="management-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon-main"></i>
+                        <input type="text" id="inquirySearch" placeholder="Search inquiries..." onkeyup="filterInquiries()">
+                    </div>
+                    <!-- Internal Tabs -->
+                    <div class="tab-switcher" style="display: flex; gap: 8px; background: #f1f5f9; padding: 6px; border-radius: 14px; border: 1px solid #e2e8f0; min-width: 220px;">
+                        <button id="tabNewInq" onclick="switchInquiryTab('new')" style="flex: 1; padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; background: white; color: #db2777; box-shadow: 0 4px 12px rgba(219, 39, 119, 0.15); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fas fa-envelope"></i> New
+                        </button>
+                        <button id="tabReadInq" onclick="switchInquiryTab('read')" style="flex: 1; padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; background: transparent; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fas fa-check-circle"></i> History
+                        </button>
+                    </div>
                 </div>
-                <div id="inquiryList" class="inquiry-grid">
-                    <!-- Inquiries will be loaded here -->
+
+                <!-- New Inquiries sub-section -->
+                <div id="newInquirySubSection">
+                    <div class="section-header" style="border-bottom-color:#fbcfe8;">
+                        <h3 style="color:#db2777;"><i class="fas fa-envelope"></i> New Inquiries</h3>
+                    </div>
+                    <div id="newInquiryList" class="inquiry-grid" style="margin-bottom:30px;">
+                        <div style="grid-column:1/-1;text-align:center;padding:20px;color:#9ca3af;">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Read Inquiries sub-section -->
+                <div id="readInquirySubSection" style="display: none;">
+                    <div class="section-header">
+                        <h3><i class="fas fa-history"></i> Inquiry History</h3>
+                    </div>
+                    <div id="readInquiryList" class="inquiry-grid" style="margin-bottom:50px;">
+                        <div style="grid-column:1/-1;text-align:center;padding:20px;color:#9ca3af;">Loading...</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- ── CASH BOOKINGS SECTION ── -->
+            <!-- ── PENDING BOOKINGS SECTION ── -->
             <div id="cashSection" style="display: none;">
                 <!-- Summary bar -->
                 <div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
@@ -545,9 +537,11 @@
                     </div>
                 </div>
 
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="cashSearch" class="search-input" placeholder="Search cash payments by name or mobile..." onkeyup="filterCash()">
+                <div class="management-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon-main"></i>
+                        <input type="text" id="cashSearch" placeholder="Search cash requests by customer name or mobile..." onkeyup="filterCash()">
+                    </div>
                 </div>
 
                 <!-- Pending sub-section -->
@@ -567,6 +561,23 @@
                 </div>
             </div>
 
+            <!-- ── REGISTERED USERS SECTION (Super Admin Only) ── -->
+            <div id="usersSection" style="display: none;">
+                <div class="section-header">
+                    <h3><i class="fas fa-users-cog" style="color: #8b5cf6;"></i> Managed Users</h3>
+                </div>
+                <!-- User search bar -->
+                <div class="management-bar" style="margin-bottom: 25px;">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon-main"></i>
+                        <input type="text" id="userSearch" placeholder="Search users by name or mobile..." onkeyup="filterUsers()">
+                    </div>
+                </div>
+                <div id="usersList" class="inquiry-grid" style="margin-bottom:50px;">
+                    <div style="grid-column:1/-1;text-align:center;padding:20px;color:#9ca3af;">Accessing user database...</div>
+                </div>
+            </div>
+
             <!-- ── SETTINGS SECTION ── -->
             <div id="settingsSection" style="display: none;">
                 <div class="section-header">
@@ -581,17 +592,25 @@
                             <h4>Revenue & Fees</h4>
                         </div>
                         <div class="settings-panel-body">
-                            <p class="help-text">Configure the additional flat fee that will be automatically applied to every booking made through the platform.</p>
+                            <p class="help-text">Configure global fees and taxes that apply to all bookings. Settings are updated instantly for new transactions.</p>
                             <form id="settingsForm">
-                                <label class="settings-label">Global Platform Fee (Rs)</label>
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="number" id="platformFeeInput" value="0" min="0" required
-                                        style="flex: 1; padding: 12px 15px; border: 1.5px solid #e5e7eb; border-radius: 12px; font-family: inherit; font-size: 1rem; outline: none; transition: 0.3s;"
-                                        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e5e7eb'">
-                                    <button type="submit" id="saveSettingsBtn" style="padding: 12px 24px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(58,134,255,0.2);">Update</button>
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div>
+                                        <label class="settings-label">Global Platform Fee (Rs)</label>
+                                        <input type="number" id="platformFeeInput" value="0" min="0" required
+                                            style="width: 100%; padding: 12px 15px; border: 1.5px solid #e5e7eb; border-radius: 12px; font-family: inherit; font-size: 1rem; outline: none; transition: 0.3s;"
+                                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e5e7eb'">
+                                    </div>
+                                    <div>
+                                        <label class="settings-label">GST Percentage (%)</label>
+                                        <input type="number" id="gstInput" value="0" min="0" max="100" required
+                                            style="width: 100%; padding: 12px 15px; border: 1.5px solid #e5e7eb; border-radius: 12px; font-family: inherit; font-size: 1rem; outline: none; transition: 0.3s;"
+                                            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e5e7eb'">
+                                    </div>
+                                    <button type="submit" id="saveSettingsBtn" style="padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(58,134,255,0.2);">Save All Settings</button>
                                 </div>
                             </form>
-                            <div id="settingsMsg" style="margin-top: 15px; font-size: 0.82rem; font-weight: 600;"></div>
+                            <div id="settingsMsg" style="margin-top: 15px; font-size: 0.82rem; font-weight: 600;"></div>82rem; font-weight: 600;"></div>
                         </div>
                     </div>
 
@@ -653,6 +672,27 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <!-- 5. Danger Zone (Super Admin Only) -->
+                <div class="settings-panel" id="dangerZonePanel" style="margin-top: 30px; border: 1px solid #fee2e2; display: none; background: #fffafb;">
+                    <div class="settings-panel-header" style="background: #fef2f2; border-bottom-color: #fecdd3;">
+                        <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                        <h4 style="color: #991b1b;">Danger Zone</h4>
+                    </div>
+                    <div class="settings-panel-body" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+                        <div>
+                            <p style="margin: 0; font-weight: 700; color: #111827; font-size: 0.95rem;">Reset System Database</p>
+                            <p style="margin: 5px 0 0 0; font-size: 0.82rem; color: #6b7280;">Archiving all existing inquiries, bookings, and users. This action cannot be reversed.</p>
+                        </div>
+                        <button id="resetDataBtn" onclick="clearData()" class="btn-logout" style="
+                            background: #ef4444; color: white; border: none; 
+                            padding: 12px 25px; border-radius: 12px; font-weight: 700;
+                            cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+                            display: flex; align-items: center; gap: 10px; white-space: nowrap;">
+                            <span class="nav-icon"><i class="fas fa-trash-alt"></i></span>
+                            <span class="nav-text">Reset All Data</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -743,9 +783,10 @@
                 const data = await res.json();
                 if (data.success) {
                     localStorage.setItem('admin_token', 'active');
+                    localStorage.setItem('admin_role', data.role || 'admin');
                     showDashboard();
                 } else {
-                    errorMsg.textContent = 'Invalid username or password.';
+                    errorMsg.textContent = data.message || 'Invalid credentials.';
                 }
             } catch (err) {
                 errorMsg.textContent = 'Server connection error.';
@@ -761,11 +802,41 @@
         const lastUpdateEl = document.getElementById('lastUpdate');
         let myChart = null;
         let allBookings = [];
+        let allInquiries = [];
+        let allUsers = [];
 
         // Fetch Data
+        function switchInquiryTab(tab) {
+            const newSub = document.getElementById('newInquirySubSection');
+            const readSub = document.getElementById('readInquirySubSection');
+            const tabNew = document.getElementById('tabNewInq');
+            const tabRead = document.getElementById('tabReadInq');
+
+            if (tab === 'new') {
+                newSub.style.display = 'block';
+                readSub.style.display = 'none';
+                tabNew.style.background = 'white';
+                tabNew.style.color = '#db2777';
+                tabNew.style.boxShadow = '0 4px 12px rgba(219, 39, 119, 0.15)';
+                tabRead.style.background = 'transparent';
+                tabRead.style.color = '#64748b';
+                tabRead.style.boxShadow = 'none';
+            } else {
+                newSub.style.display = 'none';
+                readSub.style.display = 'block';
+                tabRead.style.background = 'white';
+                tabRead.style.color = '#475569';
+                tabRead.style.boxShadow = '0 4px 12px rgba(71, 85, 105, 0.15)';
+                tabNew.style.background = 'transparent';
+                tabNew.style.color = '#64748b';
+                tabNew.style.boxShadow = 'none';
+            }
+        }
+
         async function loadDashboardData() {
             try {
-                const res = await fetch('/api/admin/data');
+                const role = localStorage.getItem('admin_role') || 'admin';
+                const res = await fetch(`/api/admin/data?role=${role}`);
                 const data = await res.json();
                 
                 allBookings = data.bookings;
@@ -786,6 +857,23 @@
                     } else {
                         badge.style.display = 'none';
                     }
+                }
+
+                const unreadInquiries = allInquiries.filter(i => i.status !== 'read');
+                const inqBadge = document.getElementById('inquiryBadge');
+                if (inqBadge) {
+                    if (unreadInquiries.length > 0) {
+                        inqBadge.textContent = unreadInquiries.length;
+                        inqBadge.style.display = 'block';
+                    } else {
+                        inqBadge.style.display = 'none';
+                    }
+                }
+
+                // Update New Inquiries Stat Card
+                const totalInquiryStat = document.getElementById('totalInquiryCount');
+                if (totalInquiryStat) {
+                    totalInquiryStat.textContent = unreadInquiries.length;
                 }
 
                 // Default month to current if not set
@@ -1055,12 +1143,37 @@
         function showDashboard() {
             loginSection.classList.add('hidden');
             dashboardSection.classList.remove('hidden');
+            
+            // Check role for Super Admin features
+            const role = localStorage.getItem('admin_role');
+            // const resetBtn = document.getElementById('resetDataBtn'); // Handled via DangerZone panel
+            const settingsNav = document.getElementById('settingsNavItem');
+            const dashboardNav = document.getElementById('dashboardNavItem');
+            const dangerZone = document.getElementById('dangerZonePanel');
+
+            if (role === 'superadmin') {
+                document.getElementById('superAdminUsersNav').style.display = 'flex';
+                if (settingsNav) settingsNav.style.display = 'flex';
+                if (dashboardNav) dashboardNav.style.display = 'flex';
+                
+                // Super Admin starts on Dashboard (All)
+                switchView('all', dashboardNav);
+            } else {
+                document.getElementById('superAdminUsersNav').style.display = 'none';
+                if (settingsNav) settingsNav.style.display = 'none';
+                if (dashboardNav) dashboardNav.style.display = 'none';
+                
+                // Regular Admin starts on Bookings directly
+                switchView('bookings', document.querySelector('.nav-item[onclick*="bookings"]'));
+            }
+
             loadDashboardData();
             
             // Explicitly hide sections for the main dashboard view
             document.getElementById('confirmedSection').style.display = 'none';
             document.getElementById('inquirySection').style.display = 'none';
             document.getElementById('cashSection').style.display = 'none';
+            document.getElementById('usersSection').style.display = 'none';
         }
 
         // View Switching Logic
@@ -1079,28 +1192,41 @@
             const confirmedSection = document.getElementById('confirmedSection');
             const inquirySection = document.getElementById('inquirySection');
             const cashSection = document.getElementById('cashSection');
+            const usersSection = document.getElementById('usersSection');
             const settingsSection = document.getElementById('settingsSection');
             const headerTitle = document.querySelector('.content-header h2');
 
             // Hide all
-            [statsSection, confirmedSection, inquirySection, cashSection, settingsSection].forEach(s => s.style.display = 'none');
+            [statsSection, confirmedSection, inquirySection, cashSection, settingsSection, usersSection].forEach(s => {
+                if(s) s.style.display = 'none';
+            });
 
             if (view === 'all') {
                 statsSection.style.display = 'block';
-                headerTitle.textContent = 'Admin Dashboard';
+                const role = localStorage.getItem('admin_role');
+                headerTitle.textContent = (role === 'superadmin') ? 'Super Admin Dashboard' : 'Admin Dashboard';
             } else if (view === 'bookings') {
                 confirmedSection.style.display = 'block';
-                headerTitle.textContent = 'All Bookings';
+                headerTitle.textContent = 'Confirm Bookings';
             } else if (view === 'inquiries') {
                 inquirySection.style.display = 'block';
                 headerTitle.textContent = 'General Inquiries';
             } else if (view === 'cash') {
                 cashSection.style.display = 'block';
-                headerTitle.textContent = 'Cash Bookings';
+                headerTitle.textContent = 'Pending Bookings';
                 filterCash();
+            } else if (view === 'users') {
+                usersSection.style.display = 'block';
+                headerTitle.textContent = 'Registered Users';
+                loadUsers();
             } else if (view === 'settings') {
                 settingsSection.style.display = 'block';
                 headerTitle.textContent = 'Platform Settings';
+                const role = localStorage.getItem('admin_role');
+                const dangerZone = document.getElementById('dangerZonePanel');
+                if (role === 'superadmin' && dangerZone) {
+                    dangerZone.style.display = 'block';
+                }
                 loadSettings();
             }
         }
@@ -1149,7 +1275,8 @@
                 const res = await fetch('/api/settings/platform-fee');
                 const data = await res.json();
                 if (data.success) {
-                    document.getElementById('platformFeeInput').value = data.platformFee;
+                    document.getElementById('platformFeeInput').value = data.platformFee || 0;
+                    document.getElementById('gstInput').value = data.gstPercent || 0;
                 }
             } catch (err) {
                 console.error("Failed to load settings", err);
@@ -1161,15 +1288,16 @@
             const btn = document.getElementById('saveSettingsBtn');
             const msg = document.getElementById('settingsMsg');
             const feeValue = document.getElementById('platformFeeInput').value;
+            const gstValue = document.getElementById('gstInput').value;
             
             btn.textContent = 'Saving...';
             btn.disabled = true;
 
             try {
-                const res = await fetch('/api/admin/settings/platform-fee', {
+                const res = await fetch('/api/admin/settings/update', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ value: feeValue })
+                    body: JSON.stringify({ platformFee: feeValue, gstPercent: gstValue })
                 });
                 const data = await res.json();
                 
@@ -1191,10 +1319,15 @@
         });
 
         // Logout Logic
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        function logout() {
             localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_role');
             location.reload();
-        });
+        }
+
+        // Keep the old event listener listener for safety if the element still exists
+        const oldLogoutBtn = document.getElementById('logoutBtn');
+        if(oldLogoutBtn) oldLogoutBtn.addEventListener('click', logout);
 
         // Persistence check
         if (localStorage.getItem('admin_token') === 'active') {
@@ -1248,7 +1381,7 @@
                 inq.email.toLowerCase().includes(query) ||
                 inq.travelSpot.toLowerCase().includes(query)
             );
-            renderInquiryList(filtered);
+            renderInquiryLists(filtered);
         }
 
         function filterCash() {
@@ -1264,6 +1397,62 @@
             renderCashLists(filtered);
         }
 
+        // ── User Management Logic (Super Admin) ──
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/superadmin/users');
+                const data = await res.json();
+                if (data.success) {
+                    allUsers = data.users;
+                    renderUsersList(allUsers);
+                }
+            } catch (err) {
+                console.error("Failed to load users", err);
+            }
+        }
+
+        function filterUsers() {
+            const query = document.getElementById('userSearch').value.toLowerCase();
+            const filtered = allUsers.filter(u => 
+                u.fullName.toLowerCase().includes(query) || 
+                u.mobileNumber.includes(query) ||
+                u.email.toLowerCase().includes(query)
+            );
+            renderUsersList(filtered);
+        }
+
+        function renderUsersList(users) {
+            const list = document.getElementById('usersList');
+            if (users.length === 0) {
+                list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#9ca3af;background:white;border-radius:12px;">No matching users found.</div>';
+                return;
+            }
+            list.innerHTML = users.map(u => `
+                <div class="inquiry-card" style="border-left: 4px solid #8b5cf6;">
+                    <div class="field">
+                        <span class="field-label">User Name</span>
+                        <span class="field-value" style="font-family:'Outfit'; font-weight:700;">${u.fullName}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Email / ID</span>
+                        <span class="field-value" style="font-size:0.8rem; color:#64748b;">${u.email}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Mobile</span>
+                        <span class="field-value">${u.mobileNumber}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Location Status</span>
+                        <span class="field-value">${u.liveLocation?.latitude ? '<i class="fas fa-check-circle" style="color:#10b981;"></i> Enabled' : '<i class="fas fa-times-circle" style="color:#9ca3af;"></i> Disabled'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Registered On</span>
+                        <span class="field-value" style="font-size:0.8rem;">${new Date(u.createdAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         // ── Helper Rendering Functions (Refactored for Reusability) ──
         function renderBookingsList(bookings) {
             const bookingList = document.getElementById('bookingList');
@@ -1274,13 +1463,29 @@
             bookingList.innerHTML = bookings.map(bnq => renderSingleBookingCard(bnq)).join('');
         }
 
-        function renderInquiryList(inquiries) {
-            const inquiryList = document.getElementById('inquiryList');
-            if (inquiries.length === 0) {
-                inquiryList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #9ca3af;">No matching inquiries found.</div>';
-                return;
+        function renderInquiryLists(inquiries) {
+            const newList = document.getElementById('newInquiryList');
+            const readList = document.getElementById('readInquiryList');
+            const newCountEl = document.getElementById('newInquiryCount');
+            const readCountEl = document.getElementById('readInquiryCount');
+
+            const newInquiries = inquiries.filter(i => i.status !== 'read');
+            const readInquiries = inquiries.filter(i => i.status === 'read');
+
+            if (newCountEl) newCountEl.textContent = newInquiries.length;
+            if (readCountEl) readCountEl.textContent = readInquiries.length;
+
+            if (newInquiries.length === 0) {
+                newList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #9ca3af;">No new inquiries.</div>';
+            } else {
+                newList.innerHTML = newInquiries.map(inq => renderSingleInquiryCard(inq)).join('');
             }
-            inquiryList.innerHTML = inquiries.map(inq => renderSingleInquiryCard(inq)).join('');
+
+            if (readInquiries.length === 0) {
+                readList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #9ca3af;">No inquiry history.</div>';
+            } else {
+                readList.innerHTML = readInquiries.map(inq => renderSingleInquiryCard(inq)).join('');
+            }
         }
 
         function renderCashLists(bookings) {
@@ -1333,9 +1538,9 @@
                         </div>
                         <div class="field">
                             ${statusHtml}
-                            ${bnq.confirmedAt ? `<div style="font-size: 0.72rem; color: #6b7280; font-weight: 700; margin-top: 5px; text-align: center; display: flex; align-items: center; gap: 4px; border: 1px solid #e5e7eb; padding: 2px 8px; border-radius: 4px; background: white; white-space: nowrap;">
+                            ${(bnq.confirmedAt || bnq.submittedAt) && !isCashPending && !isCancelled ? `<div style="font-size: 0.72rem; color: #6b7280; font-weight: 700; margin-top: 5px; text-align: center; display: flex; align-items: center; gap: 4px; border: 1px solid #e5e7eb; padding: 2px 8px; border-radius: 4px; background: white; white-space: nowrap;">
                                 <i class="fas fa-calendar-check" style="color:#10b981;"></i>
-                                ${new Date(bnq.confirmedAt).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})}
+                                ${new Date(bnq.confirmedAt || bnq.submittedAt).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})}
                             </div>` : ''}
                         </div>
                         <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
@@ -1365,10 +1570,10 @@
                             <div class="field-icon" style="color:#64748b;"><i class="fas fa-hashtag"></i></div>
                             <div class="field"><span class="field-label">Booking ID</span><span class="field-value" style="font-size:0.85rem;">${bnq.bookingId || '—'}</span></div>
                         </div>
-                        ${bnq.confirmedAt ? `
+                        ${(bnq.confirmedAt || bnq.submittedAt) && !isCashPending && !isCancelled ? `
                         <div class="field-box" style="grid-column: 1/-1;">
                             <div class="field-icon" style="background:#ecfdf5; color:#10b981;"><i class="fas fa-calendar-day"></i></div>
-                            <div class="field"><span class="field-label">Confirmation Date</span><span class="field-value" style="color:#15803d;">${new Date(bnq.confirmedAt).toLocaleString('en-IN', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>
+                            <div class="field"><span class="field-label">Confirmation Date</span><span class="field-value" style="color:#15803d;">${new Date(bnq.confirmedAt || bnq.submittedAt).toLocaleString('en-IN', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>
                         </div>` : ''}
                         
                         <div style="grid-column: 1/-1; display:flex; gap:12px; margin-top:10px;">
@@ -1380,14 +1585,61 @@
         }
 
         function renderSingleInquiryCard(inq) {
+            const isRead = inq.status === 'read';
             return `
-                <div class="inquiry-card">
+                <div class="inquiry-card" style="${isRead ? 'opacity: 0.6; background: #f9fafb;' : 'border-left: 4px solid #ec4899;'}">
                     <div class="field"><span class="field-label">Customer</span><span class="field-value">${inq.fullName}</span></div>
                     <div class="field"><span class="field-label">Email</span><span class="field-value" style="font-size:0.8rem;">${inq.email}</span></div>
                     <div class="field"><span class="field-label">Mobile</span><span class="field-value">${inq.mobileNumber}</span></div>
-                    <div class="field"><span class="field-label">Destination</span><div class="badge-spot">${inq.travelSpot}</div></div>
+                    <div class="field"><span class="field-label">Destination</span><div class="badge-spot" style="background: #fdf2f8; color: #db2777;">${inq.travelSpot}</div></div>
                     <div class="field"><span class="field-label">Date</span><span class="field-value">${new Date(inq.travelDate).toLocaleDateString()}</span></div>
+                    <div class="field" style="display: flex; align-items: center; justify-content: flex-end;">
+                        ${!isRead ? `<button onclick="markAsRead('${inq._id}')" class="btn-read" style="
+                            padding: 6px 12px; background: #ec4899; color: white; 
+                            border: none; border-radius: 6px; font-size: 0.75rem; 
+                            font-weight: 700; cursor: pointer; transition: 0.3s;
+                            display: flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-check"></i> Mark Read
+                        </button>` : `<span style="color: #9ca3af; font-size: 0.75rem; font-weight: 600;"><i class="fas fa-check-double"></i> Read</span>`}
+                    </div>
                 </div>`;
+        }
+
+        async function markAsRead(id) {
+            try {
+                // Find inquiry in local array and update status
+                const inqIndex = allInquiries.findIndex(i => i._id === id);
+                if (inqIndex !== -1) {
+                    allInquiries[inqIndex].status = 'read';
+                }
+
+                // Update counts manually for immediate feedback
+                const unreadCount = allInquiries.filter(i => i.status !== 'read').length;
+                
+                // Update Sidebar Badge
+                const inqBadge = document.getElementById('inquiryBadge');
+                if (inqBadge) {
+                    if (unreadCount > 0) {
+                        inqBadge.textContent = unreadCount;
+                    } else {
+                        inqBadge.style.display = 'none';
+                    }
+                }
+
+                // Update Stat Card
+                const totalInquiryStat = document.getElementById('totalInquiryCount');
+                if (totalInquiryStat) {
+                    totalInquiryStat.textContent = unreadCount;
+                }
+
+                // Re-filter list to remove the read inquiry dynamically
+                filterInquiries();
+
+                // Send background request to server
+                await fetch(`/api/inquiries/${id}/read`, { method: 'PATCH' });
+            } catch (err) {
+                console.error("Failed to mark as read", err);
+            }
         }
 
         function renderSingleCashCard(bnq) {
@@ -1405,9 +1657,9 @@
                         </div>
                         <div class="field">
                             ${statusHtml}
-                            ${bnq.confirmedAt ? `<div style="font-size: 0.72rem; color: #6b7280; font-weight: 700; margin-top: 5px; text-align: center; display: flex; align-items: center; gap: 4px; border: 1px solid #e5e7eb; padding: 2px 8px; border-radius: 4px; background: white; white-space: nowrap;">
+                            ${(bnq.confirmedAt || bnq.submittedAt) && !isPending ? `<div style="font-size: 0.72rem; color: #6b7280; font-weight: 700; margin-top: 5px; text-align: center; display: flex; align-items: center; gap: 4px; border: 1px solid #e5e7eb; padding: 2px 8px; border-radius: 4px; background: white; white-space: nowrap;">
                                 <i class="fas fa-calendar-check" style="color:#10b981;"></i>
-                                ${new Date(bnq.confirmedAt).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})}
+                                ${new Date(bnq.confirmedAt || bnq.submittedAt).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})}
                             </div>` : ''}
                         </div>
                         <div class="expand-icon"><i class="fas fa-chevron-down"></i></div>
@@ -1433,10 +1685,10 @@
                             <div class="field-icon" style="color:#64748b;"><i class="fas fa-hashtag"></i></div>
                             <div class="field"><span class="field-label">Booking ID</span><span class="field-value" style="font-size:0.85rem;">${bnq.bookingId || '—'}</span></div>
                         </div>
-                        ${bnq.confirmedAt ? `
+                        ${(bnq.confirmedAt || bnq.submittedAt) ? `
                         <div class="field-box" style="grid-column: 1/-1;">
                             <div class="field-icon" style="background:#ecfdf5; color:#10b981;"><i class="fas fa-calendar-day"></i></div>
-                            <div class="field"><span class="field-label">Confirmation Date</span><span class="field-value" style="color:#15803d;">${new Date(bnq.confirmedAt).toLocaleString('en-IN', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>
+                            <div class="field"><span class="field-label">Confirmation Date</span><span class="field-value" style="color:#15803d;">${new Date(bnq.confirmedAt || bnq.submittedAt).toLocaleString('en-IN', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>
                         </div>` : ''}
 
                         <div style="grid-column: 1/-1; display:flex; gap:12px; margin-top:10px;">
@@ -1480,15 +1732,15 @@
             .management-bar { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
             @media (min-width: 992px) { .management-bar { flex-direction: row; align-items: center; } }
             
-            .search-box { position: relative; flex: 1.5; }
-            .search-box i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.95rem; }
+            .search-box { position: relative; flex: 2.5; display: flex; align-items: center; }
+            .search-box i { position: absolute; left: 18px; color: #9ca3af; font-size: 0.95rem; z-index: 10; pointer-events: none; }
             .search-box input { width: 100%; padding: 14px 20px 14px 48px; border: 1.5px solid #e5e7eb; border-radius: 14px; font-size: 0.9rem; font-family: 'Inter', sans-serif; transition: 0.3s; background: white; white-space: nowrap; outline: none; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
             .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(58, 134, 255, 0.1); }
             
-            .filter-group { display: flex; gap: 12px; flex: 1; }
-            .filter-box { position: relative; flex: 1; display: flex; align-items: center; }
+            .filter-group { display: flex; gap: 12px; flex: 1.6; }
+            .filter-box { position: relative; flex: 1; display: flex; align-items: center; min-width: 140px; }
             .filter-box i { position: absolute; left: 16px; color: var(--primary); font-size: 0.85rem; z-index: 5; pointer-events: none; }
-            .filter-box select { width: 100%; padding: 14px 15px 14px 42px; border: 1.5px solid #e5e7eb; border-radius: 14px; font-size: 0.88rem; font-family: 'Outfit', sans-serif; background: white; color: #374151; cursor: pointer; transition: 0.3s; -webkit-appearance: none; outline: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; }
+            .filter-box select { width: 100%; padding: 14px 10px 14px 42px; border: 1.5px solid #e5e7eb; border-radius: 14px; font-size: 0.88rem; font-family: 'Outfit', sans-serif; background: white; color: #374151; cursor: pointer; transition: 0.3s; -webkit-appearance: none; outline: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; }
             .filter-box select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(58, 134, 255, 0.1); }
             /* Settings Layout */
             .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; align-items: start; }
@@ -1501,6 +1753,43 @@
             .help-text { font-size: 0.82rem; color: #6b7280; line-height: 1.5; margin-bottom: 20px; }
             .status-indicator { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; background: #f0fdf4; color: #15803d; }
             .coming-soon { opacity: 0.6; filter: grayscale(1); pointer-events: none; }
+
+            /* Mobile Responsiveness Improvements */
+            @media (max-width: 768px) {
+                .management-bar { padding: 10px; gap: 12px; }
+                .search-box input { padding: 12px 15px 12px 42px; font-size: 0.85rem; }
+                .filter-group { flex-direction: column; gap: 10px; width: 100%; }
+                .filter-box select { padding: 12px 15px 12px 40px; font-size: 0.82rem; }
+                
+                .card-summary-row { 
+                    grid-template-columns: 1fr auto; 
+                    padding: 15px; 
+                    gap: 10px;
+                }
+                .card-summary-row .field:first-child { grid-column: 1 / -1; margin-bottom: 5px; }
+                .card-summary-row .field:nth-child(2) { justify-self: start; }
+                
+                .field-value { font-size: 0.85rem; }
+                .field-label { font-size: 0.65rem; }
+                .status-badge { padding: 4px 12px; font-size: 0.68rem; }
+                
+                .card-expandable-content { 
+                    grid-template-columns: 1fr; 
+                    padding: 15px; 
+                    gap: 12px;
+                }
+                .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+                .stat-card { padding: 12px; gap: 10px; }
+                .stat-icon { width: 36px; height: 36px; font-size: 1.1rem; }
+                .stat-info h2, .stat-info h3 { font-size: 1rem; }
+                .stat-info .stat-label { font-size: 0.7rem; }
+            }
+
+            @media (max-width: 480px) {
+                .stats-grid { grid-template-columns: 1fr; }
+                .card-summary-row { padding: 12px; }
+                .status-badge { white-space: normal; text-align: center; line-height: 1.2; }
+            }
         `;
         document.head.appendChild(style);
     </script>

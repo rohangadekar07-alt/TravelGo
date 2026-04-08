@@ -7,18 +7,40 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const multer = require('multer');
 
 dotenv.config();
+
+// Multer Config for Profile Images
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (important for Vercel/Render https detection)
 const PORT = process.env.PORT || 5000;
 
 // Initialize Razorpay
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+let razorpay;
+try {
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+        console.warn('⚠️ WARNING: Razorpay keys are missing in environment variables. Payment features will not work.');
+    } else {
+        razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET
+        });
+        console.log('✅ Razorpay initialized successfully');
+    }
+} catch (error) {
+    console.error('❌ Razorpay initialization failed:', error.message);
+}
 
 // Middleware
 app.use(cors());
@@ -71,6 +93,20 @@ const Booking = require('./models/Booking');
 const User = require('./models/User');
 const OTP = require('./models/OTP');
 const Setting = require('./models/Setting');
+
+// Middleware for JWT Authentication
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.status(401).json({ success: false, message: 'Access denied. No token provided.' });
+
+    jwt.verify(token, process.env.JWT_SECRET || 'travelgo_super_secret_key_2026', (err, user) => {
+        if (err) return res.status(403).json({ success: false, message: 'Invalid or expired token.' });
+        req.user = user;
+        next();
+    });
+};
 
 // Routes
 // 1. Submit Inquiry (Main Form)
@@ -148,9 +184,35 @@ app.post('/api/bookings', async (req, res) => {
 
 // --- RAZORPAY INTEGRATION ---
 
-// 3. Create Razorpay Order
-app.post('/api/payments/create-order', async (req, res) => {
+// 8. Update User Profile (Mobile and Address only)
+app.post('/api/user/update-profile', authenticateToken, async (req, res) => {
     try {
+        const { mobileNumber, address } = req.body;
+        const user = await User.findById(req.user.id);
+        
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        if (mobileNumber) user.mobileNumber = mobileNumber;
+        if (address) user.address = address;
+
+        await user.save();
+        res.json({ success: true, message: 'Profile updated successfully', user });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error updating profile', error: err.message });
+    }
+});
+
+// 9. Upload Profile Image
+app.post('/api/user/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
+    try {
+        if (!razorpay) {
+            return res.status(503).json({ 
+                success: false, 
+                message: 'Razorpay service is not configured on this server. Please check environment variables.' 
+            });
+        }
         const { amount, bookingData } = req.body;
         
         // Amount must be in paisa! So (Rs * 100)
@@ -193,6 +255,9 @@ app.post('/api/payments/verify-payment', async (req, res) => {
         } = req.body;
 
         // Verify signature
+        if (!process.env.RAZORPAY_KEY_SECRET) {
+            return res.status(503).json({ success: false, message: 'Razorpay configuration missing (Secret)' });
+        }
         const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
         hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
         const generated_signature = hmac.digest('hex');
@@ -229,12 +294,43 @@ app.post('/api/payments/verify-payment', async (req, res) => {
                 bookingId: newBooking._id 
             });
         } else {
-            // Signature mismatch
-            res.status(400).json({ success: false, message: 'Payment verification failed (Signature mismatch)' });
+            res.status(400).json({ success: false, message: 'Invalid signature! Payment verification failed.' });
         }
     } catch (error) {
         console.error('Verify payment error:', error);
-        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+        res.status(500).json({ success: false, message: 'Verification error', error: error.message });
+    }
+});
+
+// 5. QR Payment / Manual Confirmation
+app.post('/api/payments/qr-confirm', async (req, res) => {
+    try {
+        const { bookingData, bookingCode, paymentMethod } = req.body;
+
+        const newBooking = new Booking({
+            ...bookingData,
+            paymentStatus: 'Paid',
+            paymentMethod: paymentMethod || 'QR Scan',
+            bookingId: bookingCode,
+            manualPayment: true,
+            submittedAt: new Date(),
+            confirmedAt: new Date()
+        });
+
+        // Resolve userId
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET || 'travelgo_super_secret_key_2026');
+                newBooking.userId = decoded.id;
+            } catch (e) {}
+        }
+
+        await newBooking.save();
+        res.json({ success: true, message: 'Booking confirmed successfully', bookingId: newBooking._id });
+    } catch (error) {
+        console.error('QR Confirm Error:', error);
+        res.status(500).json({ success: false, message: 'Submission error', error: error.message });
     }
 });
 
@@ -313,32 +409,76 @@ app.use('/api/user', require('./routes/userRoutes'));
 // 4. Admin Login
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
-    if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
-        res.json({ success: true, message: 'Login successful' });
-    } else {
-        res.status(401).json({ success: false, message: 'Invalid credentials' });
+    
+    // Check Super Admin first
+    if (username === process.env.SUPER_ADMIN_USERNAME && password === process.env.SUPER_ADMIN_PASSWORD) {
+        return res.json({ success: true, message: 'Super Admin Login successful', role: 'superadmin' });
     }
+    
+    // Check Regular Admin
+    if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+        return res.json({ success: true, message: 'Admin Login successful', role: 'admin' });
+    }
+    
+    res.status(401).json({ success: false, message: 'Invalid credentials' });
 });
 
 // 4. Get Data for Admin
 app.get('/api/admin/data', async (req, res) => {
     try {
-        const inquiries = await Inquiry.find().sort({ submittedAt: -1 });
-        const bookings = await Booking.find().sort({ submittedAt: -1 });
+        // Main operational dashboard only shows non-archived items for both roles
+        const filter = { isArchived: { $ne: true } };
+        
+        const inquiries = await Inquiry.find(filter).sort({ submittedAt: -1 });
+        const bookings = await Booking.find(filter).sort({ submittedAt: -1 });
         res.json({ inquiries, bookings });
     } catch (err) {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
 
-// 5. Clear All Data (Admin only)
+// New: Get Users for Super Admin
+app.get('/api/superadmin/users', async (req, res) => {
+    try {
+        const users = await User.find({ isArchived: { $ne: true } }).sort({ createdAt: -1 });
+        res.json({ success: true, users });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error fetching users' });
+    }
+});
+
+// 4b. Admin: Mark Inquiry as Read
+app.patch('/api/inquiries/:id/read', async (req, res) => {
+    try {
+        const inquiry = await Inquiry.findByIdAndUpdate(
+            req.params.id,
+            { status: 'read' },
+            { returnDocument: 'after' }
+        );
+        if (!inquiry) {
+            return res.status(404).json({ success: false, message: 'Inquiry not found' });
+        }
+        res.json({ success: true, message: 'Inquiry marked as read', inquiry });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Server error', error: err.message });
+    }
+});
+
+// 5. Clear All Data (Admin only - now Soft Clear)
 app.delete('/api/admin/clear-data', async (req, res) => {
     try {
-        await Inquiry.deleteMany({});
-        await Booking.deleteMany({});
-        await User.deleteMany({});
-        await OTP.deleteMany({});
-        res.json({ success: true, message: 'All inquiries, bookings, users, and OTPs have been cleared.' });
+        // We now soft-reset: mark as archived instead of deleteMany
+        const resInq = await Inquiry.updateMany({}, { isArchived: true });
+        const resBook = await Booking.updateMany({}, { isArchived: true });
+        const resUser = await User.updateMany({}, { isArchived: true });
+        
+        console.log(`[RESET] ${resInq.modifiedCount} Inquiries, ${resBook.modifiedCount} Bookings, ${resUser.modifiedCount} Users archived.`);
+        
+        res.json({ 
+            success: true, 
+            message: 'All data has been archived successfully.',
+            counts: { inquiries: resInq.modifiedCount, bookings: resBook.modifiedCount, users: resUser.modifiedCount }
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error clearing data', error: err.message });
     }
@@ -349,31 +489,32 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// 6. Settings API
 app.get('/api/settings/platform-fee', async (req, res) => {
     try {
-        let setting = await Setting.findOne({ key: 'platformFee' });
-        if (!setting) {
-             setting = new Setting({ key: 'platformFee', value: 0 });
-             await setting.save();
-        }
-        res.json({ success: true, platformFee: 9 });
+        let fee = await Setting.findOne({ key: 'platformFee' });
+        let gst = await Setting.findOne({ key: 'gstPercent' });
+        res.json({ 
+            success: true, 
+            platformFee: fee ? fee.value : 9,
+            gstPercent: gst ? gst.value : 0
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Server error', error: err.message });
     }
 });
 
-app.post('/api/admin/settings/platform-fee', async (req, res) => {
+app.post('/api/admin/settings/update', async (req, res) => {
     try {
-        const { value } = req.body;
-        let setting = await Setting.findOne({ key: 'platformFee' });
-        if (!setting) {
-             setting = new Setting({ key: 'platformFee', value: Number(value) });
-        } else {
-             setting.value = Number(value);
+        const { platformFee, gstPercent } = req.body;
+        
+        if (platformFee !== undefined) {
+            await Setting.findOneAndUpdate({ key: 'platformFee' }, { value: Number(platformFee) }, { upsert: true });
         }
-        await setting.save();
-        res.json({ success: true, message: 'Platform fee updated successfully', platformFee: setting.value });
+        if (gstPercent !== undefined) {
+            await Setting.findOneAndUpdate({ key: 'gstPercent' }, { value: Number(gstPercent) }, { upsert: true });
+        }
+        
+        res.json({ success: true, message: 'Settings updated successfully' });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Server error', error: err.message });
     }

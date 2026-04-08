@@ -256,14 +256,14 @@
             </div>
             <div class="info-row">
                 <span class="label">💳 Payment</span>
-                <span class="value" id="displayStatus" style="color: #d97706;">⏳ Cash — Pending Confirmation</span>
+                <span class="value" id="displayStatus" style="color: #d97706;">⏳ Pending Confirmation</span>
             </div>
         </div>
 
         <!-- Info Notice -->
         <div class="notice" id="statusNotice">
             <i class="fas fa-info-circle"></i>
-            <span>Admin will confirm your cash booking once you visit our office and complete the payment. You'll receive confirmation on your mobile number.</span>
+            <span id="noticeText">Our admin will verify your payment and confirm your booking shortly. You'll receive notification on your mobile number.</span>
         </div>
 
         <div id="actionBtnArea">
@@ -285,6 +285,20 @@
         document.getElementById('displayDest').textContent = booking.travelSpot || '—';
         document.getElementById('displayName').textContent = booking.fullName || '—';
         document.getElementById('displayPrice').textContent = booking.price || '—';
+
+        // Dynamic Payment Method Text
+        const statusEl = document.getElementById('displayStatus');
+        const noticeEl = document.getElementById('noticeText');
+        const subtitleEl = document.getElementById('mainSubtitle');
+
+        if (booking.paymentMethod === 'QR Scan') {
+            statusEl.textContent = '⏳ QR Scan — Pending Verification';
+            noticeEl.textContent = "Our admin is verifying your QR transaction. You'll receive a confirmation on your mobile and email once verified.";
+            subtitleEl.textContent = "Your QR payment is currently being reviewed by our finance team.";
+        } else {
+            statusEl.textContent = '⏳ Cash — Pending Confirmation';
+            // Default notice text is already set or can be set here
+        }
 
         const lastCheckEl = document.getElementById('lastCheckedText');
 
