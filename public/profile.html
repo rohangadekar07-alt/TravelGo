@@ -575,6 +575,11 @@
                         document.getElementById('detLocation').textContent = 'Live Location Shared ✅';
                         document.getElementById('detLocation').style.color = '#15803d';
                     }
+                } else {
+                     // Token is valid but user no longer exists in DB (e.g. database reset)
+                     localStorage.removeItem('token');
+                     window.location.href = '/register.html';
+                     return;
                 }
 
                 // Load History

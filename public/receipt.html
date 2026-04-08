@@ -442,8 +442,20 @@
                 }
             } else {
                 // Fetch from sessionStorage (User flow)
-                booking = JSON.parse(sessionStorage.getItem('confirmedBooking') || sessionStorage.getItem('pendingBooking') || '{}');
-                displayBookingId = sessionStorage.getItem('cashBookingId') || booking.bookingId;
+                const cashId = sessionStorage.getItem('cashBookingId');
+                const confirmedData = sessionStorage.getItem('confirmedBooking');
+                const pendingData = sessionStorage.getItem('pendingBooking');
+
+                if (cashId && pendingData) {
+                    booking = JSON.parse(pendingData);
+                    displayBookingId = cashId;
+                } else if (confirmedData) {
+                    booking = JSON.parse(confirmedData);
+                    displayBookingId = booking.bookingId;
+                } else {
+                    booking = JSON.parse(pendingData || '{}');
+                    displayBookingId = booking.bookingId;
+                }
                 console.log('Receipt: Local Session Data:', booking);
             }
 

@@ -644,6 +644,11 @@
 
                     const data = await res.json();
                     if (data.success) {
+                        // Update session data for receipt display
+                        bookingData.paymentMethod = 'Cash';
+                        bookingData.paymentStatus = 'Cash Pending';
+                        sessionStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+                        
                         // Save booking info for pending page display
                         sessionStorage.setItem('cashBookingId', bookingId);
                         sessionStorage.setItem('cashDbId', data.bookingId); // MongoDB _id

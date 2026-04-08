@@ -34,6 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         defaultIcon.style.display = 'none';
                     }
                 }
+            } else {
+                // If token exists but user was deleted (e.g. database reset)
+                localStorage.removeItem('token');
+                window.location.reload();
             }
         }).catch(err => console.error('Profile fetch failed', err));
 
@@ -162,24 +166,8 @@ if (inquiryForm) {
             const result = await response.json();
 
             if (response.ok) {
-                showToast('Inquiry saved! Opening WhatsApp...', 'success');
+                showToast('Inquiry submitted successfully! We will contact you soon.', 'success');
                 inquiryForm.reset();
-                
-                // Construct Professional WhatsApp message
-                const message = `🌟 *New Travel Inquiry* 🌟%0A%0A` +
-                    `👤 *Customer Name:* ${formData.fullName}%0A` +
-                    `📧 *Email:* ${formData.email}%0A` +
-                    `📞 *Mobile:* ${formData.mobileNumber}%0A` +
-                    `📍 *Destination:* ${formData.travelSpot}%0A` +
-                    `📅 *Preferred Date:* ${formData.travelDate}%0A%0A` +
-                    `---%0A` +
-                    `*"I am interested in this travel package and would like to receive more information regarding the itinerary and pricing. Please connect with me."*%0A%0A` +
-                    `_Sent via TravelGO Official Website_`;
-
-                const whatsappUrl = `https://wa.me/919890145825?text=${message}`;
-                setTimeout(() => {
-                    window.open(whatsappUrl, '_blank');
-                }, 1000);
             } else {
                 showToast(result.message || 'Error occurred.', 'error');
             }
@@ -285,7 +273,11 @@ function bookSpot(spotName) {
     document.getElementById('modalPrice').textContent = pkg.price;
     document.getElementById('modalImg').src = pkg.img;
 
-    // Ensure form is empty
+    // Ensure old sessions are cleared
+    sessionStorage.removeItem('confirmedBooking');
+    sessionStorage.removeItem('cashBookingId');
+    sessionStorage.removeItem('cashDbId');
+
     const modalForm = document.getElementById('modalInquiryForm');
     if (modalForm) modalForm.reset();
     

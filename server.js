@@ -206,8 +206,8 @@ app.post('/api/user/update-profile', authenticateToken, async (req, res) => {
     }
 });
 
-// 9. Upload Profile Image
-app.post('/api/user/upload-image', authenticateToken, upload.single('profileImage'), async (req, res) => {
+// 3. Create Razorpay Order
+app.post('/api/payments/create-order', async (req, res) => {
     try {
         if (!razorpay) {
             return res.status(503).json({ 
@@ -469,17 +469,17 @@ app.patch('/api/inquiries/:id/read', async (req, res) => {
 // 5. Clear All Data (Admin only - now Soft Clear)
 app.delete('/api/admin/clear-data', async (req, res) => {
     try {
-        // Hard-reset the database to truly clear test data and free up unique constraint fields (like emails)
+        // Hard-reset the database to truly clear test data (Bookings and Inquiries only)
+        // User registration data is kept intact as requested.
         const resInq = await Inquiry.deleteMany({});
         const resBook = await Booking.deleteMany({});
-        const resUser = await User.deleteMany({});
         
-        console.log(`[RESET] ${resInq.deletedCount} Inquiries, ${resBook.deletedCount} Bookings, ${resUser.deletedCount} Users deleted.`);
+        console.log(`[RESET] ${resInq.deletedCount} Inquiries, ${resBook.deletedCount} Bookings deleted. Users preserved.`);
         
         res.json({ 
             success: true, 
-            message: 'All data has been permanently deleted.',
-            counts: { inquiries: resInq.deletedCount, bookings: resBook.deletedCount, users: resUser.deletedCount }
+            message: 'All inquiries and bookings have been deleted. Registered users are safe.',
+            counts: { inquiries: resInq.deletedCount, bookings: resBook.deletedCount }
         });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error clearing data', error: err.message });
