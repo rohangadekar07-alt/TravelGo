@@ -355,11 +355,19 @@
                 </tr>
                 <tr>
                     <td>
-                        <strong>Platform Fees & Taxes</strong><br>
+                        <strong>Platform Fees</strong><br>
                         <span style="font-size: 0.8rem; color: var(--slate);">Standard platform handling</span>
                     </td>
                     <td>Added</td>
-                    <td class="price-col" id="receiptPlatformFee">Rs 0.00</td>
+                    <td class="price-col" id="receiptPlatformFee">Rs 0</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong id="receiptGSTLabel">GST (0%)</strong><br>
+                        <span style="font-size: 0.8rem; color: var(--slate);">Govt. applicable tax</span>
+                    </td>
+                    <td>Added</td>
+                    <td class="price-col" id="receiptGSTAmount">Rs 0</td>
                 </tr>
             </tbody>
         </table>
@@ -371,8 +379,12 @@
                     <span id="baseAmount">Rs --</span>
                 </div>
                 <div class="total-row">
+                    <span id="gstRowLabel">GST (0%)</span>
+                    <span id="platformAmount">Rs 0</span>
+                </div>
+                <div class="total-row">
                     <span>Platform Fee</span>
-                    <span id="platformAmount">Rs 0.00</span>
+                    <span id="receiptPlatformFeeTotal">Rs 0</span>
                 </div>
                 <div class="total-row grand">
                     <span>Total Paid</span>
@@ -461,13 +473,18 @@
                 
                 let basePriceVal = booking.basePrice || parseInt(price.replace(/[^0-9]/g, '')) || 0;
                 let platformFeeVal = booking.platformFee || 0;
+                let gstAmountVal = booking.gstAmount || 0;
+                let gstPercentVal = booking.gstPercent || 0;
 
-                // For legacy compatibility, if platformFee is 0 but price is set, base = price
                 document.getElementById('subtotalPrice').textContent = "Rs " + basePriceVal.toLocaleString();
                 document.getElementById('totalPrice1').textContent = "Rs " + basePriceVal.toLocaleString();
                 document.getElementById('receiptPlatformFee').textContent = "Rs " + platformFeeVal.toLocaleString();
+                document.getElementById('receiptGSTLabel').textContent = "GST (" + gstPercentVal + "%)"; 
+                document.getElementById('receiptGSTAmount').textContent = "Rs " + gstAmountVal.toLocaleString();
                 document.getElementById('baseAmount').textContent = "Rs " + basePriceVal.toLocaleString();
-                document.getElementById('platformAmount').textContent = "Rs " + platformFeeVal.toLocaleString();
+                document.getElementById('gstRowLabel').textContent = "GST (" + gstPercentVal + "%)"; 
+                document.getElementById('platformAmount').textContent = "Rs " + gstAmountVal.toLocaleString();
+                document.getElementById('receiptPlatformFeeTotal').textContent = "Rs " + platformFeeVal.toLocaleString();
                 document.getElementById('finalTotal').textContent = price;
 
                 // ID

@@ -149,7 +149,7 @@ app.post('/api/inquiries', async (req, res) => {
 // 2. Submit Booking (Modal Form)
 app.post('/api/bookings', async (req, res) => {
     try {
-        const { fullName, email, mobileNumber, travelDate, travelSpot, travelMode, price, basePrice, platformFee, duration, paymentStatus, paymentMethod, bookingId } = req.body;
+        const { fullName, email, mobileNumber, travelDate, travelSpot, travelMode, price, basePrice, platformFee, gstAmount, gstPercent, duration, paymentStatus, paymentMethod, bookingId } = req.body;
 
         // Date Validation: Prevent past dates
         const today = new Date();
@@ -170,7 +170,9 @@ app.post('/api/bookings', async (req, res) => {
 
         const newBooking = new Booking({ 
             userId,
-            fullName, email, mobileNumber, travelDate, travelSpot, travelMode, price, basePrice, platformFee, duration,
+            fullName, email, mobileNumber, travelDate, travelSpot, travelMode, 
+            price, basePrice, platformFee, gstAmount: gstAmount || 0, gstPercent: gstPercent || 0,
+            duration,
             paymentStatus: paymentStatus || 'Paid',
             paymentMethod: paymentMethod || 'Online',
             bookingId
@@ -310,7 +312,7 @@ app.post('/api/payments/qr-confirm', async (req, res) => {
         const newBooking = new Booking({
             ...bookingData,
             paymentStatus: 'Paid',
-            paymentMethod: paymentMethod || 'QR Scan',
+            paymentMethod: paymentMethod || 'Online',
             bookingId: bookingCode,
             manualPayment: true,
             submittedAt: new Date(),
@@ -467,17 +469,17 @@ app.patch('/api/inquiries/:id/read', async (req, res) => {
 // 5. Clear All Data (Admin only - now Soft Clear)
 app.delete('/api/admin/clear-data', async (req, res) => {
     try {
-        // We now soft-reset: mark as archived instead of deleteMany
-        const resInq = await Inquiry.updateMany({}, { isArchived: true });
-        const resBook = await Booking.updateMany({}, { isArchived: true });
-        const resUser = await User.updateMany({}, { isArchived: true });
+        // Hard-reset the database to truly clear test data and free up unique constraint fields (like emails)
+        const resInq = await Inquiry.deleteMany({});
+        const resBook = await Booking.deleteMany({});
+        const resUser = await User.deleteMany({});
         
-        console.log(`[RESET] ${resInq.modifiedCount} Inquiries, ${resBook.modifiedCount} Bookings, ${resUser.modifiedCount} Users archived.`);
+        console.log(`[RESET] ${resInq.deletedCount} Inquiries, ${resBook.deletedCount} Bookings, ${resUser.deletedCount} Users deleted.`);
         
         res.json({ 
             success: true, 
-            message: 'All data has been archived successfully.',
-            counts: { inquiries: resInq.modifiedCount, bookings: resBook.modifiedCount, users: resUser.modifiedCount }
+            message: 'All data has been permanently deleted.',
+            counts: { inquiries: resInq.deletedCount, bookings: resBook.deletedCount, users: resUser.deletedCount }
         });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error clearing data', error: err.message });
@@ -496,7 +498,9 @@ app.get('/api/settings/platform-fee', async (req, res) => {
         res.json({ 
             success: true, 
             platformFee: fee ? fee.value : 9,
-            gstPercent: gst ? gst.value : 0
+            gstPercent: gst ? gst.value : 0,
+            feeUpdatedAt: fee ? fee.updatedAt : null,
+            gstUpdatedAt: gst ? gst.updatedAt : null
         });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Server error', error: err.message });
@@ -506,15 +510,24 @@ app.get('/api/settings/platform-fee', async (req, res) => {
 app.post('/api/admin/settings/update', async (req, res) => {
     try {
         const { platformFee, gstPercent } = req.body;
+        const now = new Date();
         
         if (platformFee !== undefined) {
-            await Setting.findOneAndUpdate({ key: 'platformFee' }, { value: Number(platformFee) }, { upsert: true });
+            await Setting.findOneAndUpdate(
+                { key: 'platformFee' }, 
+                { value: Number(platformFee), updatedAt: now }, 
+                { upsert: true }
+            );
         }
         if (gstPercent !== undefined) {
-            await Setting.findOneAndUpdate({ key: 'gstPercent' }, { value: Number(gstPercent) }, { upsert: true });
+            await Setting.findOneAndUpdate(
+                { key: 'gstPercent' }, 
+                { value: Number(gstPercent), updatedAt: now }, 
+                { upsert: true }
+            );
         }
         
-        res.json({ success: true, message: 'Settings updated successfully' });
+        res.json({ success: true, message: 'Settings updated successfully', updatedAt: now });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Server error', error: err.message });
     }

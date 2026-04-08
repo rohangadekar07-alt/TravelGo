@@ -563,11 +563,15 @@
                     let count = 60;
                     const timer = setInterval(() => {
                         count--;
-                        sendOtpBtn.textContent = `Resend (${count}s)`;
+                        if (sendOtpBtn.disabled) {
+                            sendOtpBtn.textContent = `Resend (${count}s)`;
+                        }
+                        
                         if (count <= 0) {
                             clearInterval(timer);
                             sendOtpBtn.disabled = false;
                             sendOtpBtn.textContent = 'Resend OTP';
+                            // Note: We explicitly DO NOT clear otpInput.value here
                         }
                     }, 1000);
                 } else {

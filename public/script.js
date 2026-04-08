@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (authLinks) authLinks.style.display = 'none';
         if (userProfile) userProfile.style.display = 'block';
         
+        // Hide mobile specific auth links in menu
+        document.querySelectorAll('.mobile-only').forEach(el => el.style.display = 'none');
+        
         // Fetch profile to get real user data
         fetch('/api/user/profile', {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -36,18 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } else {
         if (authLinks) authLinks.style.display = 'flex';
-        if (userProfile) userProfile.style.display = 'block'; // Show icon for guests too
-    }
-
-    // Redirect guest users from profile icon to register form
-    const profileCircle = document.getElementById('navProfileCircle');
-    if (profileCircle) {
-        profileCircle.addEventListener('click', (e) => {
-            if (!localStorage.getItem('token')) {
-                e.preventDefault();
-                window.location.href = '/register.html';
-            }
-        });
+        if (userProfile) userProfile.style.display = 'none'; // Hide icon for guests
     }
 
     // Set dynamic date restrictions (Today as minimum)

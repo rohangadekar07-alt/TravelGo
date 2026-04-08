@@ -102,7 +102,7 @@
             margin: 0 auto;
             padding: 20px 20px;
             flex: 1;           /* Fill remaining height after nav */
-            overflow-y: auto;  /* If content is taller, scroll here only */
+            overflow: hidden;  /* App-style fixed layout */
             display: flex;
             flex-direction: column;
         }
@@ -211,11 +211,14 @@
         .payment-body {
             padding: 15px 22px;
             flex: 1;
-            overflow-y: hidden; /* Hide scrollbar completely */
+            overflow-y: auto; /* Enable scrolling */
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
+
+        .payment-body::-webkit-scrollbar { width: 5px; }
+        .payment-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
 
         .payment-method-card {
             border: 2px solid var(--primary);
@@ -326,6 +329,7 @@
             border: 1px solid #f1f5f9;
             overflow: hidden; /* Hide sidebar scrollbar */
             flex: 1;
+            min-height: 0; /* REQUIRED for nested scrolling to work */
             display: flex;
             flex-direction: column;
         }
@@ -339,9 +343,13 @@
         /* Scrollable top zone */
         .summary-scroll-zone {
             flex: 1;
-            overflow-y: hidden; /* Hide internal zones */
+            overflow-y: auto; /* Allow scrolling */
             min-height: 0;
+            padding-right: 5px;
         }
+
+        .summary-scroll-zone::-webkit-scrollbar { width: 5px; }
+        .summary-scroll-zone::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
 
         /* Pinned bottom zone */
         .summary-footer {
@@ -636,8 +644,9 @@
                 <div class="summary-card" style="padding: 15px 20px;">
                     <h3 style="margin-bottom: 10px;">Booking Summary</h3>
 
-                    <div class="summary-details">
-                        <div class="destination-preview">
+                    <div class="summary-scroll-zone">
+                        <div class="summary-details">
+                            <div class="destination-preview">
                             <img src="" id="summImg" alt="Destination" class="preview-img">
                             <div class="preview-text">
                                 <h4 id="summPackage">-</h4>
@@ -662,17 +671,22 @@
                             <span class="detail-value" id="summBasePrice">Rs 1</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Extra Platform Fee</span>
+                            <span class="detail-label" id="summGSTLabel">GST (0%)</span>
+                            <span class="detail-value" id="summGSTAmount">Rs 0</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Platform Fee</span>
                             <span class="detail-value" id="summPlatformFee">Rs 0</span>
                         </div>
                     </div>
+                </div> <!-- Closing summary-scroll-zone -->
 
-                    <!-- PINNED FOOTER: always visible -->
-                    <div class="summary-footer">
-                        <div class="total-section">
-                            <span class="total-label">Amount to Pay</span>
-                            <span class="total-price" id="summAmount">Rs 0</span>
-                        </div>
+                <!-- PINNED FOOTER: always visible -->
+                <div class="summary-footer">
+                    <div class="total-section">
+                        <span class="total-label">Amount to Pay</span>
+                        <span class="total-price" id="summAmount">Rs 0</span>
+                    </div>
 
                         <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
                             <button type="button" onclick="confirmQRPayment()" class="btn-confirm" style="background: #22c55e; margin-top: 0; box-shadow: 0 6px 14px rgba(34, 197, 94, 0.2);">
@@ -727,19 +741,25 @@
                     if(data.success && data.platformFee) {
                         platformFee = Number(data.platformFee);
                     }
-                    finalizePricing(basePrice, platformFee);
+                    const gstPercent = (data.success && data.gstPercent) ? Number(data.gstPercent) : 0;
+                    finalizePricing(basePrice, platformFee, gstPercent);
                 })
                 .catch(err => {
                     console.error("Could not load platform fee, using 0.");
-                    finalizePricing(basePrice, 0);
+                    finalizePricing(basePrice, 0, 0);
                 });
                 
-            function finalizePricing(baseP, fee) {
-                const total = baseP + fee;
+            function finalizePricing(baseP, fee, gstPercent) {
+                const gstAmount = Math.round(baseP * (gstPercent / 100));
+                const total = baseP + gstAmount + fee;
                 bookingData.basePrice = baseP;
                 bookingData.platformFee = fee;
-                bookingData.price = "Rs " + total.toLocaleString(); 
+                bookingData.gstPercent = gstPercent;
+                bookingData.gstAmount = gstAmount;
+                bookingData.price = "Rs " + total.toLocaleString();
                 document.getElementById('summBasePrice').textContent = "Rs " + baseP.toLocaleString();
+                document.getElementById('summGSTLabel').textContent = "GST (" + gstPercent + "%)";
+                document.getElementById('summGSTAmount').textContent = "Rs " + gstAmount.toLocaleString();
                 document.getElementById('summPlatformFee').textContent = "Rs " + fee.toLocaleString();
                 document.getElementById('summAmount').textContent = bookingData.price;
             }
@@ -889,7 +909,7 @@
                         body: JSON.stringify({
                             bookingData: bookingData,
                             bookingCode: bookingId,
-                            paymentMethod: 'QR Scan'
+                            paymentMethod: 'Online'
                         })
                     });
 

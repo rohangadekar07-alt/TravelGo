@@ -11,6 +11,8 @@ const bookingSchema = new mongoose.Schema({
     price: { type: String, required: true },
     basePrice: { type: Number },
     platformFee: { type: Number, default: 0 },
+    gstAmount: { type: Number, default: 0 },
+    gstPercent: { type: Number, default: 0 },
     duration: { type: String, required: true },
     paymentStatus: { type: String, default: 'Pending' }, 
     paymentMethod: { type: String, default: 'Online' },
