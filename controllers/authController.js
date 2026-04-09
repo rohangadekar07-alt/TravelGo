@@ -30,8 +30,12 @@ exports.sendOtp = async (req, res) => {
 
         res.json({ success: true, message: 'OTP sent successfully to your email' });
     } catch (err) {
+        let helpfulMessage = err.message;
+        if (err.message.includes('535 5.7.8')) {
+            helpfulMessage = 'Authentication Failed: If using Gmail, you MUST use an "App Password", not your regular password. If using Brevo, check your SMTP Key.';
+        }
         console.error('Send OTP Error:', err);
-        res.status(500).json({ success: false, message: 'Failed to send OTP', error: err.message });
+        res.status(500).json({ success: false, message: 'Failed to send OTP', error: helpfulMessage });
     }
 };
 
