@@ -559,6 +559,11 @@ app.post('/api/admin/settings/update', async (req, res) => {
     }
 });
 
+// Explicitly serve index.html for the root route (crucial for Vercel)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // 5. 404 Handler (JSON)
 app.use((req, res) => {
     res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
