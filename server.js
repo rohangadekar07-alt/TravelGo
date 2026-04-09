@@ -71,16 +71,20 @@ app.use((req, res, next) => {
 });
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-    bufferCommands: false, // Don't buffer commands if DB is down
-    serverSelectionTimeoutMS: 5000 // Timeout after 5s
-}).then(() => {
-    console.log('✅ SUCCESS: Connected to MongoDB');
-}).catch((err) => {
-    console.error('❌ ERROR: Could not connect to MongoDB.');
-    console.error('CAUSE:', err.message);
-    console.error('Is MongoDB running? Try starting it with: mongod');
-});
+if (!process.env.MONGODB_URI) {
+    console.error('❌ FATAL ERROR: MONGODB_URI is not defined in environment variables.');
+    console.error('Please add MONGODB_URI to your deployment platform settings.');
+} else {
+    mongoose.connect(process.env.MONGODB_URI, {
+        bufferCommands: false,
+        serverSelectionTimeoutMS: 5000
+    }).then(() => {
+        console.log('✅ SUCCESS: Connected to MongoDB');
+    }).catch((err) => {
+        console.error('❌ ERROR: Could not connect to MongoDB.');
+        console.error('CAUSE:', err.message);
+    });
+}
 
 // Handle connection events
 mongoose.connection.on('error', err => {

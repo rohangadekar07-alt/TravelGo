@@ -3,14 +3,13 @@ const nodemailer = require('nodemailer');
 console.log('📡 Initializing Email Service with:', process.env.EMAIL_USER);
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, 
+    port: 465,
+    secure: true, 
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
     tls: {
-        ciphers: 'SSLv3',
         rejectUnauthorized: false
     }
 });
@@ -18,14 +17,16 @@ const transporter = nodemailer.createTransport({
 // Verify connection configuration
 transporter.verify(function (error, success) {
     if (error) {
-        console.log('🔴 Email Service Error (Authentication Failed):', error.message);
+        console.log('🔴 Email Service Connection Error:', error.message);
+        console.log('TIP: Ensure EMAIL_USER and EMAIL_PASS (App Password) are set in environment variables.');
     } else {
         console.log('🟢 Email Service is ready and Authenticated for:', process.env.EMAIL_USER);
     }
 });
 
-const sendVerificationEmail = async (email, token, baseUrl = process.env.BASE_URL || 'http://localhost:5000') => {
-    const url = `${baseUrl}/api/auth/verify?token=${token}`;
+const sendVerificationEmail = async (email, token, baseUrl) => {
+    const finalBaseUrl = baseUrl || process.env.BASE_URL || 'http://localhost:5000';
+    const url = `${finalBaseUrl}/api/auth/verify?token=${token}`;
     
     const mailOptions = {
         from: `"TravelGO" <${process.env.EMAIL_USER}>`,
@@ -73,8 +74,9 @@ const sendOtpEmail = async (email, otp) => {
     return transporter.sendMail(mailOptions);
 };
 
-const sendWelcomeEmail = async (email, name, baseUrl = process.env.BASE_URL || 'http://localhost:5000') => {
-    const loginUrl = `${baseUrl}/login.html`;
+const sendWelcomeEmail = async (email, name, baseUrl) => {
+    const finalBaseUrl = baseUrl || process.env.BASE_URL || 'http://localhost:5000';
+    const loginUrl = `${finalBaseUrl}/login.html`;
     
     const mailOptions = {
         from: `"TravelGO" <${process.env.EMAIL_USER}>`,
@@ -99,7 +101,8 @@ const sendWelcomeEmail = async (email, name, baseUrl = process.env.BASE_URL || '
     return transporter.sendMail(mailOptions);
 };
 
-const sendResetOtpEmail = async (email, otp, baseUrl = process.env.BASE_URL || 'http://localhost:5000') => {
+const sendResetOtpEmail = async (email, otp, baseUrl) => {
+    const finalBaseUrl = baseUrl || process.env.BASE_URL || 'http://localhost:5000';
     const mailOptions = {
         from: `"TravelGO" <${process.env.EMAIL_USER}>`,
         to: email,
