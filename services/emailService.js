@@ -40,7 +40,7 @@ const sendVerificationEmail = async (email, token, baseUrl) => {
     const url = `${finalBaseUrl}/api/auth/verify?token=${token}`;
     
     const mailOptions = {
-        from: `"TravelGO" <${process.env.EMAIL_USER}>`,
+        from: `"TravelGO" <${smtpUser}>`,
         to: email,
         subject: 'Verify Your Email - TravelGO',
         html: `
@@ -64,7 +64,7 @@ const sendVerificationEmail = async (email, token, baseUrl) => {
 
 const sendOtpEmail = async (email, otp) => {
     const mailOptions = {
-        from: `"TravelGO" <${process.env.EMAIL_USER}>`,
+        from: `"TravelGO" <${smtpUser}>`,
         to: email,
         subject: 'Your Registration OTP - TravelGO',
         html: `
@@ -90,7 +90,7 @@ const sendWelcomeEmail = async (email, name, baseUrl) => {
     const loginUrl = `${finalBaseUrl}/login.html`;
     
     const mailOptions = {
-        from: `"TravelGO" <${process.env.EMAIL_USER}>`,
+        from: `"TravelGO" <${smtpUser}>`,
         to: email,
         subject: 'Welcome to TravelGO! 🎉',
         html: `
@@ -115,7 +115,7 @@ const sendWelcomeEmail = async (email, name, baseUrl) => {
 const sendResetOtpEmail = async (email, otp, baseUrl) => {
     const finalBaseUrl = baseUrl || process.env.BASE_URL || 'http://localhost:5000';
     const mailOptions = {
-        from: `"TravelGO" <${process.env.EMAIL_USER}>`,
+        from: `"TravelGO" <${smtpUser}>`,
         to: email,
         subject: 'Password Reset OTP - TravelGO',
         html: `
