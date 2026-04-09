@@ -1,10 +1,22 @@
 const nodemailer = require('nodemailer');
 
-console.log('📡 Initializing Email Service with:', process.env.EMAIL_USER);
+// ✅ Supports both Brevo (recommended for production) and Gmail
+// For Brevo: set SMTP_HOST=smtp-relay.brevo.com, SMTP_PORT=587
+// For Gmail: set SMTP_HOST=smtp.gmail.com, SMTP_PORT=465
+const SMTP_HOST = process.env.SMTP_HOST || 'smtp-relay.brevo.com';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
+const SMTP_SECURE = SMTP_PORT === 465;
+
+console.log(`📡 Initializing Email Service via ${SMTP_HOST}:${SMTP_PORT} as: ${process.env.EMAIL_USER}`);
+
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, 
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_SECURE,
+    family: 4, // Force IPv4 - prevents ENETUNREACH on cloud platforms
+    connectionTimeout: 15000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -14,13 +26,13 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Verify connection configuration
+// Verify connection configuration (non-blocking)
 transporter.verify(function (error, success) {
     if (error) {
-        console.log('🔴 Email Service Connection Error:', error.message);
-        console.log('TIP: Ensure EMAIL_USER and EMAIL_PASS (App Password) are set in environment variables.');
+        console.log('🔴 Email Service Error:', error.message);
+        console.log('   → Check EMAIL_USER, EMAIL_PASS, SMTP_HOST, SMTP_PORT in your env settings.');
     } else {
-        console.log('🟢 Email Service is ready and Authenticated for:', process.env.EMAIL_USER);
+        console.log(`🟢 Email Service ready → ${SMTP_HOST}:${SMTP_PORT} (${process.env.EMAIL_USER})`);
     }
 });
 
