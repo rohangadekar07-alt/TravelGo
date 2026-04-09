@@ -27,10 +27,11 @@ const transporter = nodemailer.createTransport({
 // Verify connection configuration
 transporter.verify(function (error, success) {
     if (error) {
-        console.log('🔴 Email Service Connection Error:', error.message);
-        console.log('   → Check EMAIL_USER, EMAIL_PASS, SMTP_HOST, SMTP_PORT in your env settings.');
+        console.log(`🔴 Email Service Error (${smtpHost}):`, error.message);
+        console.log(`   → Attempted login with user: ${smtpUser}`);
+        console.log('   → Check SMTP_USER and SMTP_PASS in Vercel settings.');
     } else {
-        console.log(`🟢 Email Service is ready! Sending as: ${smtpUser}`);
+        console.log(`🟢 Email Service Connected Successfully to ${smtpHost} as ${smtpUser}`);
     }
 });
 
