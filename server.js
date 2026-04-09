@@ -57,36 +57,56 @@ app.get('/api/config', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(uploadDir));
 
+// MongoDB Connection Handler (Cached for Serverless)
+let cachedConnection = null;
+
+const connectDB = async () => {
+    if (mongoose.connection.readyState === 1) return mongoose.connection;
+    if (cachedConnection) return cachedConnection;
+
+    if (!process.env.MONGODB_URI) {
+        console.error('❌ FATAL ERROR: MONGODB_URI is not defined.');
+        throw new Error('MONGODB_URI missing');
+    }
+
+    console.log('📡 Connecting to MongoDB...');
+    cachedConnection = mongoose.connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000
+    });
+
+    try {
+        await cachedConnection;
+        console.log('✅ SUCCESS: Connected to MongoDB');
+        return mongoose.connection;
+    } catch (err) {
+        cachedConnection = null;
+        console.error('❌ ERROR: Could not connect to MongoDB:', err.message);
+        throw err;
+    }
+};
+
 // Request Logger & DB Monitor
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     if (req.method !== 'GET') {
         console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     }
-    // Check DB status for API routes
-    if (req.url.startsWith('/api/') && mongoose.connection.readyState !== 1) {
-        return res.status(503).json({ 
-            success: false, 
-            message: 'Database is currently disconnected. Please wait or check your connection.' 
-        });
+    
+    // Auto-connect and wait for DB on API routes
+    if (req.url.startsWith('/api/')) {
+        try {
+            await connectDB();
+        } catch (err) {
+            return res.status(503).json({ 
+                success: false, 
+                message: 'Database connection failed. Please try again in 10 seconds.' 
+            });
+        }
     }
     next();
 });
 
-// MongoDB Connection
-if (!process.env.MONGODB_URI) {
-    console.error('❌ FATAL ERROR: MONGODB_URI is not defined in environment variables.');
-    console.error('Please add MONGODB_URI to your deployment platform settings.');
-} else {
-    mongoose.connect(process.env.MONGODB_URI, {
-        bufferCommands: false,
-        serverSelectionTimeoutMS: 5000
-    }).then(() => {
-        console.log('✅ SUCCESS: Connected to MongoDB');
-    }).catch((err) => {
-        console.error('❌ ERROR: Could not connect to MongoDB.');
-        console.error('CAUSE:', err.message);
-    });
-}
+// Initial connection attempt (background)
+connectDB().catch(() => {});
 
 // Handle connection events
 mongoose.connection.on('error', err => {
