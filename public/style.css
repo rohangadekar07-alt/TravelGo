@@ -1453,15 +1453,16 @@ section {
         left: 12px;
     }
 
-    /* FORM AREA: fixed compact size, does NOT grow */
+    /* FORM AREA: Allow shrinking and contain scrolling inside */
     .modal-form-area {
-        flex-shrink: 0;
+        flex: 1;
+        min-height: 0;
         padding: 16px 20px;
         display: flex;
         flex-direction: column;
         gap: 10px;
         background: white;
-        overflow-y: auto;
+        overflow: hidden;
     }
 
     .modal-header {
