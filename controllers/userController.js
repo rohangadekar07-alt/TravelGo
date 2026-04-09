@@ -76,12 +76,13 @@ exports.uploadProfileImage = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Store path to the file
-        const imagePath = `/uploads/profiles/${req.file.filename}`;
-        user.profileImage = imagePath;
+        // Convert the file buffer to a base64 string since it's stored in memory
+        const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        
+        user.profileImage = base64Image;
         await user.save();
 
-        res.json({ success: true, message: 'Profile image updated successfully', imagePath });
+        res.json({ success: true, message: 'Profile image updated successfully', imagePath: base64Image });
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Server error' });
