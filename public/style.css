@@ -1432,11 +1432,11 @@ section {
         overflow: hidden;
     }
 
-    /* IMAGE: flex-grow fills ALL remaining space */
+    /* IMAGE: shrunk to minimal size so form fits without scrolling */
     .modal-visual {
-        flex: 1; /* Grow to fill empty space! */
-        min-height: 150px; /* Minimum so it always shows nicely */
-        max-height: 50vh; /* Never more than half the screen */
+        flex: none;
+        height: 130px; 
+        min-height: 130px;
         overflow: hidden;
     }
 
@@ -1447,9 +1447,9 @@ section {
     }
 
     .modal-price-tag {
-        font-size: 1.1rem;
-        padding: 8px 16px;
-        bottom: 12px;
+        font-size: 1rem;
+        padding: 5px 12px;
+        bottom: 8px;
         left: 12px;
     }
 
@@ -1457,10 +1457,10 @@ section {
     .modal-form-area {
         flex: 1;
         min-height: 0;
-        padding: 16px 20px;
+        padding: 10px 16px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 6px;
         background: white;
         overflow: hidden;
     }
@@ -1469,52 +1469,52 @@ section {
         margin-bottom: 0;
     }
     .modal-header h2 {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         margin-bottom: 2px;
-        line-height: 1.2;
+        line-height: 1.1;
     }
     .modal-subtitle {
-        font-size: 0.70rem;
+        font-size: 0.65rem;
         margin-bottom: 2px;
     }
     .modal-duration-badge {
-        font-size: 0.75rem;
-        padding: 3px 10px;
+        font-size: 0.70rem;
+        padding: 2px 8px;
     }
 
     .modal-input-grid {
         grid-template-columns: 1fr;
-        gap: 8px;
+        gap: 6px;
         margin-bottom: 0;
     }
     .input-group label {
-        margin-bottom: 2px;
-        font-size: 0.80rem;
+        margin-bottom: 1px;
+        font-size: 0.75rem;
     }
     .input-group input {
-        padding: 9px 12px;
-        font-size: 0.88rem;
-        border-radius: 10px;
-        border-width: 1.5px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        border-width: 1px;
     }
 
     .travel-mode-options {
-        gap: 8px;
+        gap: 6px;
     }
     .mode-card {
         flex-direction: row;
-        padding: 7px 12px;
-        gap: 8px;
-        border-radius: 10px;
+        padding: 5px 10px;
+        gap: 6px;
+        border-radius: 8px;
         align-items: center;
     }
-    .mode-card i { font-size: 0.9rem; }
-    .mode-card span { font-size: 0.78rem; }
+    .mode-card i { font-size: 0.8rem; }
+    .mode-card span { font-size: 0.75rem; }
 
     .modern-form {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
     }
 
     .modal-perks {
@@ -1543,11 +1543,12 @@ section {
     }
 
     .btn-confirm {
-        padding: 13px;
-        font-size: 1rem;
-        border-radius: 12px;
-        gap: 8px;
-        box-shadow: 0 6px 16px rgba(58, 134, 255, 0.3);
+        padding: 10px;
+        font-size: 0.9rem;
+        border-radius: 10px;
+        gap: 6px;
+        box-shadow: 0 4px 12px rgba(58, 134, 255, 0.3);
+        margin-top: 5px;
     }
 
     .close-modal {
