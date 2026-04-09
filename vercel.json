@@ -3,7 +3,18 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "public/**",
+          "routes/**",
+          "controllers/**",
+          "models/**",
+          "middleware/**",
+          "services/**",
+          "uploads/**"
+        ]
+      }
     }
   ],
   "routes": [

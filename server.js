@@ -12,9 +12,11 @@ const multer = require('multer');
 dotenv.config();
 
 // Multer Config for Profile Images
+// Use /tmp on Vercel (read-only filesystem), else local uploads/
+const uploadDir = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, 'uploads');
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -52,8 +54,8 @@ app.get('/api/config', (req, res) => {
     });
 });
 
-app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(uploadDir));
 
 // Request Logger & DB Monitor
 app.use((req, res, next) => {
